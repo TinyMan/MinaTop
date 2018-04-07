@@ -1,4 +1,4 @@
-import { CartItem } from "./CartItem";
+import { Cart } from "./cart";
 
 export enum MessageType {
   CartUpdate = 'Cart Update',
@@ -9,7 +9,7 @@ export interface IMessage {
 }
 export class CartUpdateMessage implements IMessage {
   public readonly type = MessageType.CartUpdate;
-  constructor(public readonly payload: CartItem[]) { }
+  constructor(public readonly payload: Cart) { }
 }
 
 export class EchoMessage implements IMessage {

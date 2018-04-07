@@ -1,16 +1,19 @@
 import { Action } from "./store";
-import { CartItem } from "../../lib/CartItem";
+import { Cart } from "../../lib/cart";
 
 export interface State {
-  cart: CartItem[],
+  cart: Cart,
 }
 export const initialState: State = {
-  cart: [],
+  cart: {
+    total: 0,
+    items: []
+  },
 }
 
 export class UpdateCartAction implements Action<State> {
   public readonly type = "UpdateCart";
-  constructor(public readonly payload: CartItem[]) { }
+  constructor(public readonly payload: Cart) { }
 
   public reduce(state: State) {
     return {

@@ -1,4 +1,4 @@
-import { CartItem } from "./lib/CartItem";
+import { CartItem, Cart } from "./lib/cart";
 import { EchoMessage, MinaTopMessage, CartUpdateMessage } from "./lib/MessageEvent";
 
 declare var EXT_ID: string;
@@ -10,20 +10,24 @@ XMLHttpRequest.prototype.open = function (this: XMLHttpRequest, method, url, ...
   if (method === 'GET' && url.match(/strReloadPanierRight\.php/)) {
     this.addEventListener("readystatechange", e => {
       if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-        const regex = /(\d+)&nbsp;x<\/span>([^<]+)<[\s\S]+?onclick="ModifProdPanier\('(\d+)'/g;
+        const regex = /(\d+)&nbsp;x<\/span>([^<]+)<[\s\S]+?>([\d\.]+)&nbsp;€<[\s\S]+?onclick="ModifProdPanier\('(\d+)'/g;
         const items: CartItem[] = []
         let match = regex.exec(this.responseText);
         while (match != null) {
-          const [, qty, title, id] = match;
+          const [, qty, title, price, id] = match;
           items.push({
             qty: parseInt(qty, 10),
             title: title.trim(),
             id,
+            price: parseFloat(price),
           })
           match = regex.exec(this.responseText);
         }
 
-        updateCart(items);
+        updateCart({
+          items,
+          total: items.reduce((a, e) => a + e.price, 0),
+        });
       }
     })
   }
@@ -31,9 +35,9 @@ XMLHttpRequest.prototype.open = function (this: XMLHttpRequest, method, url, ...
 }
 
 
-function updateCart(items: CartItem[]) {
-  console.log(items);
-  sendMessage(new CartUpdateMessage(items));
+function updateCart(cart: Cart) {
+  console.log(cart);
+  sendMessage(new CartUpdateMessage(cart));
 
 }
 function sendMessage(message: MinaTopMessage, callback?: (response: any) => void) {
