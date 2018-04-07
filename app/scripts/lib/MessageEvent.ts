@@ -1,4 +1,4 @@
-import { CartItem } from "../CartItem";
+import { CartItem } from "./CartItem";
 
 export enum MessageType {
   CartUpdate = 'Cart Update',

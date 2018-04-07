@@ -1,4 +1,4 @@
-import { CartItem } from "./CartItem";
+import { CartItem } from "./lib/CartItem";
 import { EchoMessage, MinaTopMessage, CartUpdateMessage } from "./lib/MessageEvent";
 
 declare var EXT_ID: string;
