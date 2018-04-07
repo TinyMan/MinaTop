@@ -14,8 +14,7 @@ store.subscribe(state => {
   console.log(state);
 })
 
-
-chrome.runtime.onMessageExternal.addListener((message: MinaTopMessage, sender, callback) => {
+function dispatcher(message: MinaTopMessage, sender: chrome.runtime.MessageSender, callback: (response: any) => void) {
   switch (message.type) {
     case MessageType.CartUpdate:
       console.log(message.payload);
@@ -29,5 +28,7 @@ chrome.runtime.onMessageExternal.addListener((message: MinaTopMessage, sender, c
       break;
 
   }
-});
+}
+chrome.runtime.onMessageExternal.addListener(dispatcher);
+chrome.runtime.onMessage.addListener(dispatcher);
 
