@@ -1,0 +1,80 @@
+$btnColor: rgb(37, 185, 64);
+
+body {
+  min-width: 500px;
+  margin: 0;
+}
+button {
+  background-color: $btnColor;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 2px;
+  height: 25px;
+  padding: 5px;
+  cursor: pointer;
+}
+button.start {
+  width: 100%;
+}
+
+.groups .group {
+  h1 {
+    text-align: center;
+    margin: 5px 0;
+  }
+
+  .commande {
+    margin: auto;
+    width: fit-content;
+    font-size: 1.5em;
+
+    div {
+      margin-bottom: 5px;
+    }
+  }
+}
+
+.separator {
+  width: 100%;
+  border-bottom: 1px solid lighten(black, 80%);
+  margin-top: 20px;
+}
+table {
+  margin: 8px;
+  width: calc(100% - 8px * 2);
+  border-collapse: collapse;
+
+  caption {
+    font-weight: bold;
+    text-align: left;
+    span {
+      vertical-align: middle;
+    }
+    button.validate {
+      float: right;
+    }
+  }
+
+  colgroup {
+    :nth-child(1) {
+      width: 10%;
+    }
+    :nth-child(2) {
+      width: 80%;
+    }
+    :nth-child(3) {
+      width: 10%;
+    }
+  }
+  thead tr th {
+    border-bottom: 1px solid black;
+  }
+
+  th, td{
+    text-align: left;
+  }
+  td.empty {
+    text-align: center;
+  }
+}
