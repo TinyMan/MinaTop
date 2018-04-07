@@ -1,5 +1,5 @@
 import { CartItem, Cart } from "../lib/cart";
-import { EchoMessage, MinaTopMessage, CartUpdateMessage } from "../lib/MessageEvent";
+import { EchoMessage, MinaTopMessage, UpdateCartMessage } from "../lib/MessageEvent";
 
 declare var EXT_ID: string;
 
@@ -37,7 +37,7 @@ XMLHttpRequest.prototype.open = function (this: XMLHttpRequest, method, url, ...
 
 function updateCart(cart: Cart) {
   console.log(cart);
-  sendMessage(new CartUpdateMessage(cart));
+  sendMessage(new UpdateCartMessage(cart));
 
 }
 function sendMessage(message: MinaTopMessage, callback?: (response: any) => void) {

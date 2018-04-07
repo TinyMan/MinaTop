@@ -1,14 +1,17 @@
 import { Cart } from "./cart";
+import { State } from "../background/store/actions";
 
 export enum MessageType {
-  CartUpdate = 'Cart Update',
+  UpdateCart = 'Cart Update',
   Echo = 'Echo message',
+  NewState = 'New State',
+  GetState = 'Get State',
 }
 export interface IMessage {
   readonly type: MessageType;
 }
-export class CartUpdateMessage implements IMessage {
-  public readonly type = MessageType.CartUpdate;
+export class UpdateCartMessage implements IMessage {
+  public readonly type = MessageType.UpdateCart;
   constructor(public readonly payload: Cart) { }
 }
 
@@ -16,5 +19,15 @@ export class EchoMessage implements IMessage {
   public readonly type = MessageType.Echo;
   constructor(public readonly payload: any) { }
 }
+export class NewStateMessage implements IMessage {
+  public readonly type = MessageType.NewState;
+  constructor(public readonly payload: State) { }
+}
+export class GetStateMessage implements IMessage {
+  public readonly type = MessageType.GetState;
+}
 
-export type MinaTopMessage = CartUpdateMessage | EchoMessage;
+export type MinaTopMessage = UpdateCartMessage
+  | EchoMessage
+  | NewStateMessage
+  | GetStateMessage;

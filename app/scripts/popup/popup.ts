@@ -2,18 +2,23 @@
 import 'chromereload/devonly'
 
 import { render } from 'lit-html';
-import { MinaTopMessage, EchoMessage } from '../lib/MessageEvent';
+import { MinaTopMessage, MessageType, GetStateMessage } from '../lib/MessageEvent';
 import { popup } from './template';
 import { State } from '../background/store/actions';
 
-chrome.runtime.onMessage.addListener((message: MinaTopMessage, sender, callback) => {
+const renderPopup = (() => {
+  const el = document.getElementById('popup')!;
+  return (state: State) => render(popup(state), el)
+})()
 
-  console.log(message);
-  callback('ok');
+chrome.runtime.onMessage.addListener((message: MinaTopMessage, sender, callback) => {
+  switch (message.type) {
+    case MessageType.NewState:
+      console.log('new state available: ', message.payload);
+      renderPopup(message.payload);
+      break;
+    default: break;
+  }
 })
 
-chrome.runtime.sendMessage(new EchoMessage('salut'), e => console.log('response: ', e))
-
-const el = document.getElementById('popup');
-if (el)
-  render(popup({} as State), el);
+chrome.runtime.sendMessage(new GetStateMessage(), renderPopup);

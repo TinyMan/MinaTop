@@ -1,5 +1,6 @@
 import { html, render } from 'lit-html';
 import { State } from '../background/store/actions';
+import { CartItem, Cart } from '../lib/cart';
 
 export const btnCreate = html`<button class="start">Démarrer une commande groupée</button>`;
 
@@ -26,7 +27,27 @@ export const groups = (state: State) => html`
 </div>
 `;
 
-export const separator = () => html`<div class="separator"></div>`;
+export const separator = html`<div class="separator"></div>`;
+
+export const table_row = (item: CartItem) => html`
+<tr>
+  <td>${item.qty}&nbsp;x</td>
+  <td>${item.title}</td>
+  <td>${item.price}&nbsp;€</td>
+</tr>
+`
+
+export const empty_row = html`
+<tr>
+  <td colspan="3" class="empty">
+    <h4>Votre panier est vide</h4>
+  </td>
+</tr>`
+
+export const table_content = (cart: Cart) => {
+  if (cart.items.length > 0) return cart.items.map(item => table_row(item));
+  else return empty_row;
+}
 
 export const table = (state: State) => html`
 <table id="cart">
@@ -42,20 +63,16 @@ export const table = (state: State) => html`
   <thead>
   </thead>
   <tbody>
-    <tr>
-      <td colspan="3" class="empty">
-        <h4>Votre panier est vide</h4>
-      </td>
-    </tr>
+    ${table_content(state.cart)}
   </tbody>
   <tfoot>
     <tr class="total">
       <th colspan="2">Total</th>
-      <th>0&nbsp;€</th>
+      <th>${state.cart.total}&nbsp;€</th>
     </tr>
   </tfoot>
 </table>`;
 
 export const popup = (state: State) => html`
-${btnCreate} ${groups(state)} ${separator()} ${table(state)}
+${btnCreate} ${groups(state)} ${separator} ${table(state)}
 `
