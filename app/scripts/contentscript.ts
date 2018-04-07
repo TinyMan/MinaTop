@@ -1,11 +1,22 @@
 // Enable chromereload by uncommenting this line:
-// import 'chromereload/devonly'
+import 'chromereload/devonly'
 
 
-const url = chrome.extension.getURL('scripts/injected.js');
-var s = document.createElement('script');
-s.src = url;
-s.onload = function () {
-  this.remove();
-};
-(document.head || document.documentElement).appendChild(s);
+const id = chrome.runtime.id;
+
+function addScript(urlOrScript: string, plain = false) {
+  var s = document.createElement('script');
+  if (!plain) {
+    s.src = urlOrScript;
+  } else {
+    s.innerHTML = urlOrScript;
+  }
+
+  (document.head || document.documentElement).appendChild(s);
+}
+
+addScript(`const EXT_ID = '${id}';`, true)
+
+addScript(chrome.extension.getURL('scripts/injected.js'));
+
+

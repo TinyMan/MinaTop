@@ -30,11 +30,15 @@
   "web_accessible_resources": [
     "scripts/injected.js"
   ],
+  "externally_connectable": {
+    "matches": [
+      "*://www.minato91.fr/*"
+    ]
+  },
   "content_scripts": [
     {
       "matches": [
-        "http://www.minato91.fr/*",
-        "https://www.minato91.fr/*"
+        "*://www.minato91.fr/*"
       ],
       "css": [
         "styles/contentscript.css"
