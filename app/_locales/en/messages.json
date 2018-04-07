@@ -1,0 +1,18 @@
+{
+  "appName": {
+    "message": "MinaTop",
+    "description": "The name of the application"
+  },
+  "appShortName": {
+    "message": "minatop",
+    "description": "The short_name (maximum of 12 characters recommended) is a short version of the app's name."
+  },
+  "appDescription": {
+    "message": "Effectuer une commande groupée sur le site de minato91.fr",
+    "description": "The description of the application"
+  },
+  "browserActionTitle": {
+    "message": "MinaTop",
+    "description": "The title of the browser action button"
+  }
+}
