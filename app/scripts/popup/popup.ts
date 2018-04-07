@@ -2,7 +2,7 @@
 import 'chromereload/devonly'
 
 import { html, render } from 'lit-html';
-import { MinaTopMessage, EchoMessage } from './lib/MessageEvent';
+import { MinaTopMessage, EchoMessage } from '../lib/MessageEvent';
 
 var a = html`
   <span></span>

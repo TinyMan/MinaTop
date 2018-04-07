@@ -1,5 +1,5 @@
-import { CartItem, Cart } from "./lib/cart";
-import { EchoMessage, MinaTopMessage, CartUpdateMessage } from "./lib/MessageEvent";
+import { CartItem, Cart } from "../lib/cart";
+import { EchoMessage, MinaTopMessage, CartUpdateMessage } from "../lib/MessageEvent";
 
 declare var EXT_ID: string;
 
