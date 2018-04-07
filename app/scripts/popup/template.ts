@@ -1,28 +1,33 @@
 import { html, render } from 'lit-html';
 import { State } from '../background/store/actions';
 import { CartItem, Cart } from '../lib/cart';
+import { Order } from '../lib/Order';
 
 export const btnCreate = html`<button class="start">Démarrer une commande groupée</button>`;
 
+export const order = (order: Order) => html`
+
+<div class="commande">
+  <div class="author">
+    <span>Command effectuée par</span>
+    <span class="author-value">${order.author}</span>
+  </div>
+  <div class="expiration">
+    <span>Expiration:</span>
+    <span class="expiration-value"></span>
+  </div>
+  <div class="participants">
+    <span>Participants:</span>
+    <span class="participants-value">${order.participants}</span>
+  </div>
+  <button>Je suis intéressé</button>
+</div>
+`
 export const groups = (state: State) => html`
 <div class="groups">
   <div class="group">
-    <h1>Groupe INNOV</h1>
-    <div class="commande">
-      <div class="author">
-        <span>Command effectuée par</span>
-        <span class="author-value">Rick Sanchez</span>
-      </div>
-      <div class="expiration">
-        <span>Expiration:</span>
-        <span class="expiration-value">13:01</span>
-      </div>
-      <div class="participants">
-        <span>Participants:</span>
-        <span class="participants-value">3</span>
-      </div>
-      <button>Je suis intéressé</button>
-    </div>
+    <h1>${state.selectedGroup}</h1>
+    ${order(state.selectedOrder!)}
   </div>
 </div>
 `;
