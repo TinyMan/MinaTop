@@ -1,11 +1,11 @@
-export type Subsriber<T> = (state: T) => void;
+export type Subscriber<T> = (state: T) => void;
 export interface Action<T> {
   readonly type: string;
   reduce: (state: T) => T;
 }
 
 export class Store<T extends { [key: string]: any }> {
-  private subscribers: Subsriber<T>[];
+  private subscribers: Subscriber<T>[];
   private state: T;
 
   constructor(initialState: T) {
