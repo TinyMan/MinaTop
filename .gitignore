@@ -6,3 +6,6 @@ npm-debug.log
 
 dist/
 packages/
+
+.firebaserc
+app/scripts/background/config.ts

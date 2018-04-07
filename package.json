@@ -62,6 +62,7 @@
     "yargs": "^8.x.x"
   },
   "dependencies": {
+    "firebase": "^4.12.1",
     "lit-html": "^0.9.0"
   }
 }
