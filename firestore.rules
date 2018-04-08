@@ -12,6 +12,7 @@ service cloud.firestore {
       match /orders/{order} {
         allow read: if isSignedIn() && resource.data.fulfilled == false;
         allow write: if false;
+        allow create: if isSignedIn();
 
         function getOrder() {
         	return get(/databases/$(database)/documents/groups/$(group)/orders/$(order)).data;
