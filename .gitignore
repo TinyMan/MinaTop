@@ -9,3 +9,4 @@ packages/
 
 .firebaserc
 app/scripts/background/config.ts
+**/credential.json

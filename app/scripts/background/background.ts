@@ -52,7 +52,13 @@ async function testFB() {
   } catch (e) {
     console.error(e);
   }
+
+  const list = await db.collection("groups").get();
+  console.log(list);
 }
 
+const w = window as any;
+w.test = testFB;
+w.fb = firebase;
 
 testFB();

@@ -6,6 +6,7 @@
     "noImplicitUseStrict": true,
     "noImplicitReturns": true,
     "strictNullChecks": true,
+    "allowJs": true,
     "jsx": "react",
     "lib": [
       "dom",
@@ -17,6 +18,7 @@
       }
     ],
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "allowSyntheticDefaultImports": true
   }
 }
