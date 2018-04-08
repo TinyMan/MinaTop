@@ -68,23 +68,30 @@ async function testFB() {
 var provider = new firebase.auth.GoogleAuthProvider();
 
 firebase.initializeApp(fbConf);
-firebase.auth().signInWithPopup(provider).then(function (result) {
-  // This gives you a Google Access Token. You can use it to access the Google API.
-  var token = result.credential.accessToken;
-  // The signed-in user info.
-  var user = result.user;
-  console.log(token, user);
+firebase.auth().onAuthStateChanged(user => {
+  console.log(user);
+  if (user) testFB()
+  else firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+    .then(() => firebase.auth().signInWithPopup(provider))
+    .then(function (result) {
+      // This gives you a Google Access Token. You can use it to access the Google API.
+      var token = result.credential.accessToken;
+      // The signed-in user info.
+      var user = result.user;
+      console.log(token, user);
 
-  testFB();
+      testFB();
 
-}).catch(function (error) {
-  // Handle Errors here.
-  var errorCode = error.code;
-  var errorMessage = error.message;
-  // The email of the user's account used.
-  var email = error.email;
-  // The firebase.auth.AuthCredential type that was used.
-  var credential = error.credential;
-  // ...
-  alert(error);
+    }).catch(function (error) {
+      // Handle Errors here.
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      // The email of the user's account used.
+      var email = error.email;
+      // The firebase.auth.AuthCredential type that was used.
+      var credential = error.credential;
+      // ...
+      alert(error);
+    });
 });
+
