@@ -1,12 +1,31 @@
 service cloud.firestore {
   match /databases/{database}/documents {
+
     match /groups/{group} {
-      allow get: if request.auth.uid != null;
-      allow list: if true;
+      function isSignedIn() {
+        return request.auth != null;
+      }
+      allow get: if isSignedIn();
+      allow list: if false;
       allow write: if false;
 
-      match /orders {
-        allow list: if false;
+      match /orders/{order} {
+        allow read: if isSignedIn() && resource.data.fulfilled == false;
+        allow write: if false;
+
+        function getOrder() {
+        	return get(/databases/$(database)/documents/groups/$(group)/orders/$(order)).data;
+        }
+
+        function isAuthor() {
+        	return request.auth.uid == getOrder().author;
+        }
+
+        match /carts/{cart} {
+        	allow list: if isAuthor();
+          allow get: if cart == request.auth.uid;
+          allow write: if false;
+        }
       }
     }
   }

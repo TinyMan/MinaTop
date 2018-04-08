@@ -94,7 +94,7 @@ describe("firestore rules", () => {
       auth: { uid: 'TinyMan' }
     }))
   })
-  it("should forbid get of group by id for anonymous", async () => {
+  it("should forbid get of group by id for non auth", async () => {
     await runTest(createTest({
       allow: false,
       path: 'groups/Groupe INNOV',
