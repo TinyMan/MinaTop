@@ -42,9 +42,16 @@ chrome.runtime.onMessage.addListener(dispatcher);
 
 
 async function testFB() {
-  firebase.initializeApp(fbConf);
   // console.log(firebase);
   const db = firebase.firestore();
+
+  const w = window as any;
+  w.test = testFB;
+  w.fb = firebase;
+  w.db = db;
+  const groups = w.groups = db.collection('groups')
+  const orders = w.orders = groups.doc('Groupe INNOV').collection('orders');
+
 
   try {
     const doc = await db.collection("groups").doc('Groupe INNOV').get();
@@ -57,8 +64,27 @@ async function testFB() {
   console.log(list);
 }
 
-const w = window as any;
-w.test = testFB;
-w.fb = firebase;
 
-testFB();
+var provider = new firebase.auth.GoogleAuthProvider();
+
+firebase.initializeApp(fbConf);
+firebase.auth().signInWithPopup(provider).then(function (result) {
+  // This gives you a Google Access Token. You can use it to access the Google API.
+  var token = result.credential.accessToken;
+  // The signed-in user info.
+  var user = result.user;
+  console.log(token, user);
+
+  testFB();
+
+}).catch(function (error) {
+  // Handle Errors here.
+  var errorCode = error.code;
+  var errorMessage = error.message;
+  // The email of the user's account used.
+  var email = error.email;
+  // The firebase.auth.AuthCredential type that was used.
+  var credential = error.credential;
+  // ...
+  alert(error);
+});
