@@ -6,6 +6,7 @@ export enum MessageType {
   Echo = 'Echo message',
   NewState = 'New State',
   GetState = 'Get State',
+  CreateOrder = 'Create Order',
 }
 export interface IMessage {
   readonly type: MessageType;
@@ -26,8 +27,12 @@ export class NewStateMessage implements IMessage {
 export class GetStateMessage implements IMessage {
   public readonly type = MessageType.GetState;
 }
+export class CreateOrderMessage implements IMessage {
+  public readonly type = MessageType.CreateOrder;
+}
 
 export type MinaTopMessage = UpdateCartMessage
   | EchoMessage
   | NewStateMessage
-  | GetStateMessage;
+  | GetStateMessage
+  | CreateOrderMessage;

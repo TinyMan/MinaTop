@@ -3,9 +3,7 @@ import 'chromereload/devonly'
 import { MinaTopMessage, MessageType, NewStateMessage } from '../lib/MessageEvent'
 import { Store } from './store/store';
 import { State, initialState, UpdateCartAction } from './store/actions';
-import * as firebase from "firebase";
-import 'firebase/firestore';
-import { firebase as fbConf } from './config'
+import { createOrder } from './api';
 
 chrome.runtime.onInstalled.addListener((details) => {
   // updated
@@ -18,22 +16,30 @@ store.subscribe(state => {
   chrome.runtime.sendMessage(new NewStateMessage(state));
 })
 
-function dispatcher(message: MinaTopMessage, sender: chrome.runtime.MessageSender, callback: (response: any) => void) {
-  switch (message.type) {
-    case MessageType.UpdateCart:
-      console.log(message.payload);
-      store.dispatch(new UpdateCartAction(message.payload));
-      break;
-    case MessageType.Echo:
-      callback(message.payload);
-      break;
-    case MessageType.GetState:
-      callback(store.value);
-      break;
-    default:
-      callback('response')
-      break;
+async function dispatcher(message: MinaTopMessage, sender: chrome.runtime.MessageSender, callback: (response: any) => void) {
+  try {
+    switch (message.type) {
+      case MessageType.UpdateCart:
+        console.log(message.payload);
+        store.dispatch(new UpdateCartAction(message.payload));
+        break;
+      case MessageType.Echo:
+        callback(message.payload);
+        break;
+      case MessageType.GetState:
+        callback(store.value);
+        break;
+      case MessageType.CreateOrder:
+        const order = await createOrder(store.value.selectedGroup, { author: 'TinyMan', expiration: Date.now() + 1000 * 60 * 120, fulfilled: false });
+        console.log('Order created', order);
+        break;
+      default:
+        callback('response')
+        break;
 
+    }
+  } catch (e) {
+    console.error(e);
   }
 }
 chrome.runtime.onMessageExternal.addListener(dispatcher);
@@ -41,57 +47,6 @@ chrome.runtime.onMessage.addListener(dispatcher);
 
 
 
-async function testFB() {
-  // console.log(firebase);
-  const db = firebase.firestore();
-
-  const w = window as any;
-  w.test = testFB;
-  w.fb = firebase;
-  w.db = db;
-  const groups = w.groups = db.collection('groups')
-  const orders = w.orders = groups.doc('Groupe INNOV').collection('orders');
 
 
-  try {
-    const doc = await db.collection("groups").doc('Groupe INNOV').get();
-    console.log(doc.id, ' => ', doc.data())
-  } catch (e) {
-    console.error(e);
-  }
-
-  const list = await db.collection("groups").get();
-  console.log(list);
-}
-
-
-var provider = new firebase.auth.GoogleAuthProvider();
-
-firebase.initializeApp(fbConf);
-firebase.auth().onAuthStateChanged(user => {
-  console.log(user);
-  if (user) testFB()
-  else firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-    .then(() => firebase.auth().signInWithPopup(provider))
-    .then(function (result) {
-      // This gives you a Google Access Token. You can use it to access the Google API.
-      var token = result.credential.accessToken;
-      // The signed-in user info.
-      var user = result.user;
-      console.log(token, user);
-
-      testFB();
-
-    }).catch(function (error) {
-      // Handle Errors here.
-      var errorCode = error.code;
-      var errorMessage = error.message;
-      // The email of the user's account used.
-      var email = error.email;
-      // The firebase.auth.AuthCredential type that was used.
-      var credential = error.credential;
-      // ...
-      alert(error);
-    });
-});
 

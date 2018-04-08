@@ -1,10 +1,15 @@
-import { html, render } from 'lit-html';
+import { html, render } from 'lit-html/lib/lit-extended';
 import { State } from '../background/store/actions';
 import { CartItem, Cart } from '../lib/cart';
 import { Order } from '../lib/Order';
+import { CreateOrderMessage } from '../lib/MessageEvent';
+import { sendMessage } from './helper';
 
-export const btnCreate = html`<button class="start">Démarrer une commande groupée</button>`;
+export const btnCreate = () => html`
+<button class="start" on-click=${()=> sendMessage(new CreateOrderMessage())}>Démarrer une commande groupée</button>
+`;
 
+// <span class="participants-value">${order.participants}</span>
 export const order = (order: Order) => html`
 
 <div class="commande">
@@ -18,7 +23,6 @@ export const order = (order: Order) => html`
   </div>
   <div class="participants">
     <span>Participants:</span>
-    <span class="participants-value">${order.participants}</span>
   </div>
   <button>Je suis intéressé</button>
 </div>
@@ -79,5 +83,5 @@ export const table = (state: State) => html`
 </table>`;
 
 export const popup = (state: State) => html`
-${btnCreate} ${groups(state)} ${separator} ${table(state)}
+${btnCreate()} ${groups(state)} ${separator} ${table(state)}
 `

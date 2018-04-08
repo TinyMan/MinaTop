@@ -14,7 +14,6 @@ export const initialState: State = {
   },
   selectedOrder: {
     author: 'Rick Sanchez',
-    participants: 10,
     expiration: Date.now() + 1000 * 60 * 60,
     fulfilled: false,
   },
