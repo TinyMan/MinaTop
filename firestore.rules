@@ -20,15 +20,20 @@ service cloud.firestore {
         allow create: if isSignedIn()
                       && incomingData().author == request.auth.uid
                       && incomingData().fulfilled == false
-                      && getParentGroup().currentOrder == null;
+                      && incomingData().expiration < request.time.toMillis() + 18000000
+                      && (getParentGroup().currentOrder == null
+                      || getOrder(getParentGroup().currentOrder).expiration < request.time.toMillis());
 
         function getParentGroup() {
           return get(/databases/$(database)/documents/groups/$(group)).data;
         }
+        function getOrder(o) {
+          return get(/databases/$(database)/documents/groups/$(group)/orders/$(o)).data;
+        }
 
         match /carts/{cart} {
           function getParentOrder() {
-            return get(/databases/$(database)/documents/groups/$(group)/orders/$(order)).data;
+            return getOrder(order);
           }
           function isAuthor() {
             return isSignedIn() && request.auth.uid == getParentOrder().author;
