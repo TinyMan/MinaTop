@@ -25,6 +25,7 @@ function callback() {
   w.db = db;
   console.log('Firebase initialized');
   w.sendCart = sendCart;
+  w.fulfillOrder = fulfillOrder;
   w.fb = firebase;
   // testFB()
 }
@@ -49,10 +50,19 @@ async function initFirestore() {
 
 export async function sendCart(group: string, order: string, cart: Cart) {
   const db = await assertDb()
-  await db.collection('groups').doc(group)
+  return await db.collection('groups').doc(group)
     .collection('orders').doc(order)
     .collection('carts').doc(firebase.auth().currentUser!.uid)
     .set(cart);
+}
+
+export async function fulfillOrder(group: string, order: string) {
+  const db = await assertDb();
+  return await db.collection('groups').doc(group)
+    .collection('orders').doc(order)
+    .update({
+      fulfilled: true
+    })
 }
 
 export async function assertDb() {
