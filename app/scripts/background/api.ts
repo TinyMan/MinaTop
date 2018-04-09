@@ -3,6 +3,7 @@ import * as firebase from "firebase";
 import 'firebase/firestore';
 import { firebase as fbConf } from './config'
 import { Order } from "../lib/Order";
+import { Cart } from "../lib/cart";
 
 let db: firebase.firestore.Firestore | null = null;
 
@@ -20,6 +21,11 @@ firebase.auth().onAuthStateChanged(user => {
 
 function callback() {
   db = firebase.firestore();
+  const w = window as any;
+  w.db = db;
+  console.log('Firebase initialized');
+  w.sendCart = sendCart;
+  w.fb = firebase;
   // testFB()
 }
 
@@ -41,7 +47,13 @@ async function initFirestore() {
   }
 }
 
-
+export async function sendCart(group: string, order: string, cart: Cart) {
+  const db = await assertDb()
+  await db.collection('groups').doc(group)
+    .collection('orders').doc(order)
+    .collection('carts').doc(firebase.auth().currentUser!.uid)
+    .set(cart);
+}
 
 export async function assertDb() {
   if (db && firebase.auth().currentUser) return db;
