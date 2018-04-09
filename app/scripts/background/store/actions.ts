@@ -31,3 +31,15 @@ export class UpdateCartAction implements Action<State> {
     }
   }
 }
+
+export class SelectGroupAction implements Action<State> {
+  public readonly type = 'SelectGroup';
+  constructor(public readonly payload: string) { }
+
+  public reduce(state: State) {
+    return {
+      ...state,
+      selectdGroup: this.payload,
+    }
+  }
+}

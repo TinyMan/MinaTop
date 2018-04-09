@@ -33,6 +33,8 @@ async function dispatcher(message: MinaTopMessage, sender: chrome.runtime.Messag
         const order = await createOrder(store.value.selectedGroup, { author: 'TinyMan', expiration: Date.now() + 1000 * 60 * 120, fulfilled: false });
         console.log('Order created', order);
         break;
+      case MessageType.SelectGroup:
+
       default:
         callback('response')
         break;
