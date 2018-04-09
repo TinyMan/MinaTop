@@ -20,5 +20,8 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "allowSyntheticDefaultImports": true
-  }
+  },
+  "exclude": [
+    "functions"
+  ]
 }
