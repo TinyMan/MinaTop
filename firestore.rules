@@ -17,18 +17,25 @@ service cloud.firestore {
                       && 'fulfilled' in request.writeFields
                       && existingData().fulfilled == false
                       && incomingData().fulfilled == true;
-        allow create: if isSignedIn() && incomingData().author == request.auth.uid;
+        allow create: if isSignedIn()
+                      && incomingData().author == request.auth.uid
+                      && incomingData().fulfilled == false
+                      && getParentGroup().currentOrder == null;
+
+        function getParentGroup() {
+          return get(/databases/$(database)/documents/groups/$(group)).data;
+        }
 
         match /carts/{cart} {
-          function getOrder() {
+          function getParentOrder() {
             return get(/databases/$(database)/documents/groups/$(group)/orders/$(order)).data;
           }
           function isAuthor() {
-            return isSignedIn() && request.auth.uid == getOrder().author;
+            return isSignedIn() && request.auth.uid == getParentOrder().author;
           }
         	allow list: if isAuthor();
           allow get: if cart == request.auth.uid;
-          allow write: if isSignedIn() && request.auth.uid == cart && getOrder().fulfilled == false;
+          allow write: if isSignedIn() && request.auth.uid == cart && getParentOrder().fulfilled == false;
         }
       }
     }
