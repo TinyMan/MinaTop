@@ -1,5 +1,5 @@
 service cloud.firestore {
-  match /databases/{database}/documents {  
+  match /databases/{database}/documents {
 
     match /groups/{group} {
       function isSignedIn() {
@@ -10,24 +10,34 @@ service cloud.firestore {
       allow write: if false;
 
       match /orders/{order} {
-        allow read: if isSignedIn() && resource.data.fulfilled == false;
-        allow write: if false;
-        allow create: if isSignedIn();
-        
-        function getOrder() {
-        	return get(/databases/$(database)/documents/groups/$(group)/orders/$(order)).data;
-        }
-        
-        function isAuthor() {
-        	return request.auth.uid == getOrder().author;
-        }
-        
+        allow read: if isSignedIn() && existingData().fulfilled == false;
+        allow update: if isSignedIn()
+                      && existingData().author == request.auth.uid
+                      && request.writeFields.size() == 1
+                      && 'fulfilled' in request.writeFields
+                      && existingData().fulfilled == false
+                      && incomingData().fulfilled == true;
+        allow create: if isSignedIn() && incomingData().author == request.auth.uid;
+
         match /carts/{cart} {
+          function getOrder() {
+            return get(/databases/$(database)/documents/groups/$(group)/orders/$(order)).data;
+          }
+          function isAuthor() {
+            return isSignedIn() && request.auth.uid == getOrder().author;
+          }
         	allow list: if isAuthor();
           allow get: if cart == request.auth.uid;
           allow write: if isSignedIn() && request.auth.uid == cart && getOrder().fulfilled == false;
         }
       }
+    }
+
+    function existingData() {
+      return resource.data;
+    }
+    function incomingData() {
+      return request.resource.data;
     }
   }
 }
