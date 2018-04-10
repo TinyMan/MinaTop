@@ -4,10 +4,14 @@ import 'firebase/firestore';
 import { firebase as fbConf } from './config'
 import { Order } from "../lib/Order";
 import { Cart } from "../lib/cart";
+import { EventEmitter } from "events";
 
-let db: firebase.firestore.Firestore | null = null;
+export const Events = {
+  SIGN_IN: Symbol(),
+  SIGN_OUT: Symbol(),
 
-export class Api {
+}
+export class Api extends EventEmitter {
 
   private _db: null | firebase.firestore.Firestore = null;
   public get db() {
@@ -20,10 +24,11 @@ export class Api {
   }
 
   constructor() {
+    super();
     (window as any).api = this;
     firebase.initializeApp(fbConf);
     firebase.auth().onAuthStateChanged(user => {
-      if (user && !db) {
+      if (user && !this._db) {
         this._db = firebase.firestore();
       } else if (!user) {
         this.signIn();
@@ -39,6 +44,7 @@ export class Api {
       await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
       const result = await firebase.auth().signInWithPopup(provider)
       this._db = firebase.firestore();
+      this.emit(Events.SIGN_IN);
       return this._db;
     } catch (error) {
       // Handle Errors here.
