@@ -7,75 +7,76 @@ import { Cart } from "../lib/cart";
 
 let db: firebase.firestore.Firestore | null = null;
 
-const provider = new firebase.auth.GoogleAuthProvider();
+export class Api {
 
-firebase.initializeApp(fbConf);
-firebase.auth().onAuthStateChanged(user => {
-  if (user && !db) {
-    callback();
-  } else if (!user) {
-    initFirestore();
+  private _db: null | firebase.firestore.Firestore = null;
+  public get db() {
+    if (!this._db)
+      return this.signIn().then(db => {
+        if (!db) throw new Error('Cannot get firestore')
+        else return db;
+      });
+    return Promise.resolve(this._db);
   }
 
-});
+  constructor() {
+    (window as any).api = this;
+    firebase.initializeApp(fbConf);
+    firebase.auth().onAuthStateChanged(user => {
+      if (user && !db) {
+        this._db = firebase.firestore();
+      } else if (!user) {
+        this.signIn();
+      }
 
-function callback() {
-  db = firebase.firestore();
-  const w = window as any;
-  w.db = db;
-  console.log('Firebase initialized');
-  w.sendCart = sendCart;
-  w.fulfillOrder = fulfillOrder;
-  w.fb = firebase;
-  // testFB()
-}
-
-async function initFirestore() {
-  try {
-    await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-    const result = await firebase.auth().signInWithPopup(provider)
-    callback();
-  } catch (error) {
-    // Handle Errors here.
-    var errorCode = error.code;
-    var errorMessage = error.message;
-    // The email of the user's account used.
-    var email = error.email;
-    // The firebase.auth.AuthCredential type that was used.
-    var credential = error.credential;
-    // ...
-    alert(error);
+    });
   }
-}
 
-export async function sendCart(group: string, order: string, cart: Cart) {
-  const db = await assertDb()
-  return await db.collection('groups').doc(group)
-    .collection('orders').doc(order)
-    .collection('carts').doc(firebase.auth().currentUser!.uid)
-    .set(cart);
-}
+  public async signIn() {
+    const provider = new firebase.auth.GoogleAuthProvider();
 
-export async function fulfillOrder(group: string, order: string) {
-  const db = await assertDb();
-  return await db.collection('groups').doc(group)
-    .collection('orders').doc(order)
-    .update({
-      fulfilled: true
-    })
-}
+    try {
+      await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+      const result = await firebase.auth().signInWithPopup(provider)
+      this._db = firebase.firestore();
+      return this._db;
+    } catch (error) {
+      // Handle Errors here.
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      // The email of the user's account used.
+      var email = error.email;
+      // The firebase.auth.AuthCredential type that was used.
+      var credential = error.credential;
+      // ...
+      alert(error);
+      return null;
+    }
+  }
 
-export async function assertDb() {
-  if (db && firebase.auth().currentUser) return db;
-  await initFirestore();
-  return db!;
-}
+  async sendCart(group: string, order: string, cart: Cart) {
+    const db = await this.db;
+    return await db.collection('groups').doc(group)
+      .collection('orders').doc(order)
+      .collection('carts').doc(firebase.auth().currentUser!.uid)
+      .set(cart);
+  }
 
-export async function createOrder(group: string, order: Order) {
-  const db = await assertDb();
-  await db.collection('groups').doc(group).collection('orders').add(order);
+  async fulfillOrder(group: string, order: string) {
+    const db = await this.db;
+    return await db.collection('groups').doc(group)
+      .collection('orders').doc(order)
+      .update({
+        fulfilled: true
+      })
+  }
 
-  return order;
+  async createOrder(group: string, order: Order) {
+    const db = await this.db;
+    await db.collection('groups').doc(group).collection('orders').add(order);
+
+    return order;
+  }
 }
 
 async function testFB() {
