@@ -1,3 +1,5 @@
+import memoize from 'lodash-es/memoize';
+
 export type Subscriber<T> = (state: T) => void;
 export interface Action<T> {
   readonly type: string;
@@ -37,4 +39,11 @@ export class Store<T extends { [key: string]: any }> {
   private notify() {
     this.subscribers.map(fn => fn(this.state));
   }
+}
+
+
+export type Selector<T, T1> = (state: T) => T1;
+
+export function makeSelector<T, T1>(fun: (state: T) => T1) {
+  return memoize(fun);
 }

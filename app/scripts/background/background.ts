@@ -4,14 +4,30 @@ import { MinaTopMessage, MessageType, NewStateMessage } from '../lib/MessageEven
 import { Store } from './store/store';
 import { State, initialState, UpdateCartAction } from './store/actions';
 import { Api } from './api';
+import * as Lockr from 'lockr';
 
 const api = new Api();
+
+/**
+ * SETUP GROU LISTENERS
+ */
+const groups = Lockr.smembers<string>('groups');
+groups.forEach(g => api.addGroup(g));
+
+
+/**
+ * STORE
+ */
 const store = new Store<State>(initialState);
 store.subscribe(state => {
   console.log(state);
   chrome.runtime.sendMessage(new NewStateMessage(state));
 })
 
+
+/**
+ * Messages management
+ */
 async function dispatcher(message: MinaTopMessage, sender: chrome.runtime.MessageSender, callback: (response: any) => void) {
   try {
     switch (message.type) {
@@ -26,8 +42,12 @@ async function dispatcher(message: MinaTopMessage, sender: chrome.runtime.Messag
         callback(store.value);
         break;
       case MessageType.CreateOrder:
-        const order = await api.createOrder(store.value.selectedGroup, { author: 'TinyMan', expiration: Date.now() + 1000 * 60 * 120, fulfilled: false });
+        const order = await api.createOrder(store.value.selectedGroup!, { author: 'TinyMan', expiration: Date.now() + 1000 * 60 * 120, fulfilled: false });
         console.log('Order created', order);
+        break;
+      case MessageType.AddGroup:
+        api.addGroup(message.payload);
+        Lockr.sadd('groups', message.payload);
         break;
       case MessageType.SelectGroup:
 

@@ -2,7 +2,6 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "es5",
-    "noImplicitAny": true,
     "noImplicitUseStrict": true,
     "noImplicitReturns": true,
     "strictNullChecks": true,
@@ -22,6 +21,7 @@
     "allowSyntheticDefaultImports": true
   },
   "exclude": [
-    "functions"
+    "functions",
+    "node_modules"
   ]
 }

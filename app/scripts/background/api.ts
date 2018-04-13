@@ -7,21 +7,29 @@ import { Cart } from "../lib/cart";
 import { EventEmitter } from "events";
 
 export const Events = {
-  SIGN_IN: Symbol(),
-  SIGN_OUT: Symbol(),
+  SignIn: Symbol(),
+  SignOut: Symbol(),
+
+  GroupChange: Symbol(),
 
 }
 export class Api extends EventEmitter {
 
   private _db: null | firebase.firestore.Firestore = null;
   public get db() {
-    if (!this._db)
+    if (!this._db && !this.signing)
       return this.signIn().then(db => {
         if (!db) throw new Error('Cannot get firestore')
         else return db;
       });
-    return Promise.resolve(this._db);
+    else if (this.signing) return this.signing;
+    return Promise.resolve(this._db!);
   }
+
+  private signing: Promise<firebase.firestore.Firestore>;
+
+  private groups = new Map<string, firebase.firestore.DocumentReference>();
+  private groupUnsubscribers = new Map<string, () => void>();
 
   constructor() {
     super();
@@ -36,16 +44,31 @@ export class Api extends EventEmitter {
 
     });
   }
+  public async addGroup(group: string) {
+    if (!this.groups.has(group)) {
+      const db = await this.db;
+      const doc = db.collection('groups').doc(group);
+      this.groups.set(group, doc);
+      this.groupUnsubscribers.set(group, doc.onSnapshot(this.onGroupSnapshot.bind(this)));
+    }
+  }
+  public async onGroupSnapshot(group: firebase.firestore.DocumentSnapshot) {
+    this.emit(Events.GroupChange, group.data());
+  }
 
   public async signIn() {
     const provider = new firebase.auth.GoogleAuthProvider();
 
     try {
-      await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-      const result = await firebase.auth().signInWithPopup(provider)
-      this._db = firebase.firestore();
-      this.emit(Events.SIGN_IN);
-      return this._db;
+      this.signing = (async () => {
+
+        await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+        const result = await firebase.auth().signInWithPopup(provider)
+        this._db = firebase.firestore();
+        this.emit(Events.SignIn);
+        return this._db;
+      })();
+      return await this.signing;
     } catch (error) {
       // Handle Errors here.
       var errorCode = error.code;

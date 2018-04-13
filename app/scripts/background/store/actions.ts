@@ -5,7 +5,10 @@ import { Order } from "../../lib/Order";
 export interface State {
   readonly cart: Readonly<Cart>,
   readonly selectedOrder: Readonly<Order> | null,
-  readonly selectedGroup: string,
+  readonly selectedGroup: string | null,
+  readonly groupOrders: {
+    [key: string]: string
+  },
 }
 export const initialState: State = {
   cart: {
@@ -17,7 +20,8 @@ export const initialState: State = {
     expiration: Date.now() + 1000 * 60 * 60,
     fulfilled: false,
   },
-  selectedGroup: 'Groupe INNOV'
+  selectedGroup: null,
+  groupOrders: {},
 }
 
 export class UpdateCartAction implements Action<State> {
