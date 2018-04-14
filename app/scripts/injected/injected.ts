@@ -33,7 +33,7 @@ function getCart(html: string) {
   }
   return {
     items,
-    total: items.reduce((a, e) => a + e.price, 0),
+    total: Math.round(items.reduce((a, e) => a + e.price, 0) * 100) / 100,
   };
 }
 
