@@ -5,9 +5,9 @@ export type Effect<T> = (state: T, action: Action<T>) => Action<T> | Action<T>[]
 export interface Type<T> extends Function {
   new(...args: any[]): T
 }
-export class Action<T> {
+export abstract class Action<T> {
   readonly type: string;
-  reduce: (state: T) => T;
+  public reduce?(state: T): T;
 }
 
 export class Store<T extends { [key: string]: any }> {
@@ -54,12 +54,15 @@ export class Store<T extends { [key: string]: any }> {
           actions.push(...ret);
         }
       }
+      setTimeout(() => actions.forEach(a => this.dispatch(a)), 0);
     }
     this.notify();
   }
 
   private reduce(state: T, action: Action<T>) {
-    return action.reduce(this.state);
+    if (action.reduce)
+      return action.reduce(this.state);
+    else return state;
   }
 
   private notify() {

@@ -2,7 +2,7 @@ import { html, render } from 'lit-html/lib/lit-extended';
 import { State } from '../background/store/actions';
 import { CartItem, Cart } from '../lib/cart';
 import { Order } from '../lib/Order';
-import { CreateOrderMessage } from '../lib/MessageEvent';
+import { CreateOrderMessage, SelectGroupMessage } from '../lib/MessageEvent';
 import { sendMessage, addGroup } from './helper';
 import { Group } from '../lib/group';
 
@@ -44,8 +44,14 @@ export const order = (order: Order) => html`
 export const group = (state: State, key: string) => {
   const group = state.groups[key];
   const o = state.orders[group.currentOrder];
+  const onToggle = (e: Event) => {
+    const open = (e.target as HTMLDetailsElement).open;
+    if (open) {
+      sendMessage(new SelectGroupMessage(key));
+    }
+  }
   return html`
-<details class="group">
+<details class="group" on-toggle="${onToggle}" open="${state.selectedGroup === key}">
   <summary>${group.key}</summary>
   ${o ? order(o) : loader}
 </details>

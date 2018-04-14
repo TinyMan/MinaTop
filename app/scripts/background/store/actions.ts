@@ -23,9 +23,9 @@ export const initialState: State = {
   selectedGroup: null,
 }
 
-export class UpdateCartAction implements Action<State> {
+export class UpdateCartAction extends Action<State> {
   public readonly type = "UpdateCart";
-  constructor(public readonly payload: Cart) { }
+  constructor(public readonly payload: Cart) { super() }
 
   public reduce(state: State): State {
     return {
@@ -35,9 +35,9 @@ export class UpdateCartAction implements Action<State> {
   }
 }
 
-export class SelectGroupAction implements Action<State> {
+export class SelectGroupAction extends Action<State> {
   public readonly type = 'SelectGroup';
-  constructor(public readonly payload: string) { }
+  constructor(public readonly payload: string) { super() }
 
   public reduce(state: State): State {
     return {
@@ -47,9 +47,9 @@ export class SelectGroupAction implements Action<State> {
   }
 }
 
-export class GroupChangeAction implements Action<State> {
+export class GroupChangeAction extends Action<State> {
   public readonly type = "GroupChange";
-  constructor(public readonly payload: Group) { }
+  constructor(public readonly payload: Group) { super() }
 
   public reduce(state: State): State {
     return {
@@ -61,9 +61,9 @@ export class GroupChangeAction implements Action<State> {
     }
   }
 }
-export class OrderChangeAction implements Action<State> {
+export class OrderChangeAction extends Action<State> {
   public readonly type = "OrderChange";
-  constructor(public readonly payload: Order) { }
+  constructor(public readonly payload: Order) { super() }
 
   public reduce(state: State): State {
     return {
@@ -74,4 +74,9 @@ export class OrderChangeAction implements Action<State> {
       }
     }
   }
+}
+export class AddGroupAction extends Action<State> {
+  public readonly type = "AddGroup";
+  constructor(public readonly payload: string) { super() }
+
 }

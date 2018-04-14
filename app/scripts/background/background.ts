@@ -2,20 +2,13 @@
 import 'chromereload/devonly'
 import { MinaTopMessage, MessageType, NewStateMessage } from '../lib/MessageEvent'
 import { Store } from './store/store';
-import { State, initialState, UpdateCartAction, GroupChangeAction, OrderChangeAction } from './store/actions';
+import { State, initialState, UpdateCartAction, GroupChangeAction, OrderChangeAction, SelectGroupAction, AddGroupAction } from './store/actions';
 import { Api, Events } from './api';
 import * as Lockr from 'lockr';
 import { Group } from '../lib/group';
 import { Order } from '../lib/Order';
 
 const api = new Api();
-
-/**
- * SETUP GROU LISTENERS
- */
-const groups = Lockr.smembers<string>('groups');
-groups.forEach(g => api.addGroup(g));
-
 
 /**
  * STORE
@@ -30,6 +23,13 @@ store.addEffect((state, action: GroupChangeAction) => {
   Lockr.sadd('groups', action.payload.key);
   api.addOrder(action.payload.key, action.payload.currentOrder);
 }, GroupChangeAction)
+store.addEffect((state, action: SelectGroupAction) => {
+  Lockr.set('selectedGroup', action.payload);
+}, SelectGroupAction);
+store.addEffect((state, action: AddGroupAction) => {
+  api.addGroup(action.payload);
+  return new SelectGroupAction(action.payload);
+}, AddGroupAction);
 
 api.on(Events.GroupChange, (group: Group) => {
   store.dispatch(new GroupChangeAction(group));
@@ -37,6 +37,19 @@ api.on(Events.GroupChange, (group: Group) => {
 api.on(Events.OrderChange, (order: Order) => {
   store.dispatch(new OrderChangeAction(order));
 })
+
+/**
+ * Restore state from local storage
+ */
+function restoreFromLocalStorage() {
+  const groups = Lockr.smembers<string>('groups');
+  groups.forEach(g => api.addGroup(g));
+
+  const selectedGroup = Lockr.get<string>('selectedGroup');
+  store.dispatch(new SelectGroupAction(selectedGroup));
+}
+
+
 
 
 /**
@@ -60,10 +73,11 @@ async function dispatcher(message: MinaTopMessage, sender: chrome.runtime.Messag
         // console.log('Order created', order);
         break;
       case MessageType.AddGroup:
-        api.addGroup(message.payload);
+        store.dispatch(new AddGroupAction(message.payload));
         break;
       case MessageType.SelectGroup:
-
+        store.dispatch(new SelectGroupAction(message.payload));
+        break;
       default:
         callback('response')
         break;
@@ -76,8 +90,4 @@ async function dispatcher(message: MinaTopMessage, sender: chrome.runtime.Messag
 chrome.runtime.onMessageExternal.addListener(dispatcher);
 chrome.runtime.onMessage.addListener(dispatcher);
 
-
-
-
-
-
+restoreFromLocalStorage();
