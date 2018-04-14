@@ -37,6 +37,7 @@ export const order = (order: Order) => html`
     <span>Participants:</span>
   </div>
   <button>Participer</button>
+  <button class="validate">Envoyer votre panier</button>
 </div>
 `
 
@@ -70,7 +71,9 @@ export const table_row = (item: CartItem) => html`
 export const empty_row = html`
 <tr>
   <td colspan="3" class="empty">
-    <h4>Votre panier est vide</h4>
+    <h4>Votre panier est vide.</h4>
+    <h5>Rendez-vous sur
+      <a target="_blank" href="https://www.minato91.fr/">www.minato91.fr</a> pour le remplir</h5>
   </td>
 </tr>`
 
@@ -83,7 +86,6 @@ export const table = (state: State) => html`
 <table id="cart">
   <caption>
     <span class="your_cart">Votre panier:</span>
-    <button class="validate">Envoyer votre panier</button>
   </caption>
   <colgroup>
     <col>

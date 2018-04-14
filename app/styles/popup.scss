@@ -52,9 +52,6 @@ table {
     span {
       vertical-align: middle;
     }
-    button.validate {
-      float: right;
-    }
   }
 
   colgroup {
@@ -85,6 +82,13 @@ table {
   }
   td.empty {
     text-align: center;
+  }
+
+  h4 {
+    margin: 10px auto 0;
+  }
+  h5 {
+    margin: 0 auto 10px;
   }
 }
 
