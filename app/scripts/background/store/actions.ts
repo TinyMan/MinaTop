@@ -85,3 +85,8 @@ export class AddOrderAction extends Action<State> {
   constructor(public readonly group: string) { super() }
 
 }
+export class CancelOrderAction extends Action<State> {
+  public readonly type = "CancelOrder";
+  constructor(public readonly payload: Order) { super() }
+
+}

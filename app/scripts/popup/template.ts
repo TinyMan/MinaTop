@@ -2,7 +2,7 @@ import { html, render } from 'lit-html/lib/lit-extended';
 import { State } from '../background/store/actions';
 import { CartItem, Cart } from '../lib/cart';
 import { Order } from '../lib/Order';
-import { CreateOrderMessage, SelectGroupMessage } from '../lib/MessageEvent';
+import { CreateOrderMessage, SelectGroupMessage, CancelOrderMessage } from '../lib/MessageEvent';
 import { sendMessage, addGroup } from './helper';
 import { Group } from '../lib/group';
 import { ME } from '../lib/utils';
@@ -25,7 +25,7 @@ export const loader = html`<div class="loader">Loading ...</div>`
 // <span class="participants-value">${order.participants}</span>
 export const btnCancel = (order: Order) => {
   if (order.author === ME) {
-    return html`<button class="cancel">Annuler la commande</button>`
+    return html`<button class="cancel" on-click="${() => sendMessage(new CancelOrderMessage(order))}">Annuler la commande</button>`
   }
   return ''
 }

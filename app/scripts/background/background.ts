@@ -2,7 +2,7 @@
 import 'chromereload/devonly'
 import { MinaTopMessage, MessageType, NewStateMessage } from '../lib/MessageEvent'
 import { Store } from './store/store';
-import { State, initialState, UpdateCartAction, GroupChangeAction, OrderChangeAction, SelectGroupAction, AddGroupAction, AddOrderAction } from './store/actions';
+import { State, initialState, UpdateCartAction, GroupChangeAction, OrderChangeAction, SelectGroupAction, AddGroupAction, AddOrderAction, CancelOrderAction } from './store/actions';
 import { Api, Events } from './api';
 import * as Lockr from 'lockr';
 import { Group } from '../lib/group';
@@ -25,18 +25,21 @@ store.subscribe(state => {
 store.addEffect((action: GroupChangeAction) => {
   Lockr.sadd('groups', action.payload.key);
   if (action.payload.currentOrder)
-    api.addOrder(action.payload.key, action.payload.currentOrder);
+    api.ensureOrder(action.payload.key, action.payload.currentOrder);
 }, GroupChangeAction)
 store.addEffect((action: SelectGroupAction) => {
   Lockr.set('selectedGroup', action.payload);
 }, SelectGroupAction);
 store.addEffect((action: AddGroupAction) => {
-  api.addGroup(action.payload);
+  api.ensureGroup(action.payload);
   return new SelectGroupAction(action.payload);
 }, AddGroupAction);
 store.addEffect((action: AddOrderAction) => {
   api.createOrder(action.group);
 }, AddOrderAction);
+store.addEffect((action: CancelOrderAction) => {
+  api.cancelOrder(action.payload.group, action.payload.key!);
+}, CancelOrderAction);
 
 api.on(Events.GroupChange, (group: Group) => {
   store.dispatch(new GroupChangeAction(group));
@@ -50,7 +53,7 @@ api.on(Events.OrderChange, (order: Order) => {
  */
 function restoreFromLocalStorage() {
   const groups = Lockr.smembers<string>('groups');
-  groups.forEach(g => api.addGroup(g));
+  groups.forEach(g => api.ensureGroup(g));
 
   const selectedGroup = Lockr.get<string>('selectedGroup');
   store.dispatch(new SelectGroupAction(selectedGroup));
@@ -85,6 +88,9 @@ async function dispatcher(message: MinaTopMessage, sender: chrome.runtime.Messag
         break;
       case MessageType.SelectGroup:
         store.dispatch(new SelectGroupAction(message.payload));
+        break;
+      case MessageType.CancelOrder:
+        store.dispatch(new CancelOrderAction({ ...message.payload }));
         break;
       default:
         callback('response')

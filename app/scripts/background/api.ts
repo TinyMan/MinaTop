@@ -53,23 +53,26 @@ export class Api extends EventEmitter {
       });
     });
   }
-  public async addGroup(group: string) {
-    if (!this.groups.has(group)) {
+  public async ensureGroup(group: string) {
+    let groupRef = this.groups.get(group);
+    if (!groupRef) {
       const db = await this.db;
-      const doc = db.collection('groups').doc(group);
-      this.groups.set(group, doc);
-      this.groupUnsubscribers.set(group, doc.onSnapshot(this.onGroupSnapshot.bind(this)));
+      groupRef = db.collection('groups').doc(group);
+      this.groups.set(group, groupRef);
+      this.groupUnsubscribers.set(group, groupRef.onSnapshot(this.onGroupSnapshot.bind(this)));
     }
+    return groupRef;
   }
-  public async addOrder(group: string, order: string) {
-    if (!this.orders.has(order)) {
+  public async ensureOrder(group: string, order: string) {
+    let orderRef = this.orders.get(order);
+    if (!orderRef) {
       const db = await this.db;
-      if (!this.groups.has(group)) await this.addGroup(group);
-      const groupRef = this.groups.get(group);
-      const doc = groupRef!.collection('orders').doc(order);
-      this.orders.set(order, doc);
-      this.orderUnsubscribers.set(order, doc.onSnapshot(this.onOrderSnapshot.bind(this)));
+      const groupRef = await this.ensureGroup(group);
+      orderRef = groupRef.collection('orders').doc(order);
+      this.orders.set(order, orderRef);
+      this.orderUnsubscribers.set(order, orderRef.onSnapshot(this.onOrderSnapshot.bind(this)));
     }
+    return orderRef;
   }
   public async onGroupSnapshot(group: firebase.firestore.DocumentSnapshot) {
     const data = group.data();
@@ -86,6 +89,7 @@ export class Api extends EventEmitter {
     if (data) {
       const g: Order = {
         ...data,
+        group: order.ref.parent.parent!.id,
         author: data.author === firebase.auth().currentUser!.uid ? ME : data.author,
         key: order.id,
       } as Order;
@@ -139,16 +143,27 @@ export class Api extends EventEmitter {
 
   async createOrder(group: string, {
     expiration = Date.now() + 1000 * 60 * 120,
-    fulfilled = false
+    fulfilled = false,
+    cancelled = false,
   }: Partial<Order> = {}) {
     const db = await this.db;
     const o: Order = {
       expiration,
       fulfilled,
+      cancelled,
+      group,
       author: firebase.auth().currentUser!.uid,
     };
     const ref = await db.collection('groups').doc(group).collection('orders').add(o);
 
     return o;
+  }
+  async cancelOrder(group: string, order: string) {
+    const db = await this.db;
+    console.log('Cancel order', group, order);
+    const orderRef = await this.ensureOrder(group, order);
+    return await orderRef.update({
+      cancelled: true
+    });
   }
 }

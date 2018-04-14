@@ -1,5 +1,6 @@
 import { Cart } from "./cart";
 import { State } from "../background/store/actions";
+import { Order } from "./Order";
 
 export enum MessageType {
   UpdateCart = 'Cart Update',
@@ -7,6 +8,7 @@ export enum MessageType {
   NewState = 'New State',
   GetState = 'Get State',
   CreateOrder = 'Create Order',
+  CancelOrder = 'Cancel Order',
   SelectGroup = 'Select Group',
   AddGroup = 'Add Group',
 }
@@ -33,6 +35,10 @@ export class CreateOrderMessage implements IMessage {
   public readonly type = MessageType.CreateOrder;
   constructor(public readonly group: string) { }
 }
+export class CancelOrderMessage implements IMessage {
+  public readonly type = MessageType.CancelOrder;
+  constructor(public readonly payload: Order) { }
+}
 export class SelectGroupMessage implements IMessage {
   public readonly type = MessageType.SelectGroup;
   constructor(public readonly payload: string) { }
@@ -47,5 +53,6 @@ export type MinaTopMessage = UpdateCartMessage
   | NewStateMessage
   | GetStateMessage
   | CreateOrderMessage
+  | CancelOrderMessage
   | SelectGroupMessage
   | AddGroupMessage;

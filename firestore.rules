@@ -10,17 +10,21 @@ service cloud.firestore {
       allow write: if false;
 
       match /orders/{order} {
-        allow read: if isSignedIn() && existingData().fulfilled == false;
+        allow read: if isSignedIn() && existingData().fulfilled == false && existingData().cancelled == false;
         allow update: if isSignedIn()
                       && existingData().author == request.auth.uid
                       && request.writeFields.size() == 1
-                      && 'fulfilled' in request.writeFields
+                      && (('fulfilled' in request.writeFields
                       && existingData().fulfilled == false
-                      && incomingData().fulfilled == true;
+                      && incomingData().fulfilled == true)
+                      || ('cancelled' in request.writeFields
+                      && existingData().cancelled == false
+                      && incomingData().cancelled == true));
         allow create: if isSignedIn()
                       && incomingData().author == request.auth.uid
                       && incomingData().fulfilled == false
                       && incomingData().expiration < request.time.toMillis() + 18000000
+                      && incomingData().cancelled == false
                       && (getParentGroup().currentOrder == null
                       || getOrder(getParentGroup().currentOrder).expiration < request.time.toMillis());
 
