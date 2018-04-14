@@ -56,8 +56,8 @@ async function dispatcher(message: MinaTopMessage, sender: chrome.runtime.Messag
         callback(store.value);
         break;
       case MessageType.CreateOrder:
-        const order = await api.createOrder(store.value.selectedGroup!, { author: 'TinyMan', expiration: Date.now() + 1000 * 60 * 120, fulfilled: false });
-        console.log('Order created', order);
+        // const order = await api.createOrder(store.value.selectedGroup!, { author: 'TinyMan', expiration: Date.now() + 1000 * 60 * 120, fulfilled: false });
+        // console.log('Order created', order);
         break;
       case MessageType.AddGroup:
         api.addGroup(message.payload);

@@ -5,8 +5,6 @@ import { Group } from "../../lib/group";
 
 export interface State {
   readonly cart: Readonly<Cart>,
-  readonly selectedOrder: Readonly<Order> | null,
-  readonly selectedGroup: string | null,
   readonly groups: {
     [key: string]: Group,
   }
@@ -19,12 +17,6 @@ export const initialState: State = {
     total: 0,
     items: []
   },
-  selectedOrder: {
-    author: 'Rick Sanchez',
-    expiration: Date.now() + 1000 * 60 * 60,
-    fulfilled: false,
-  },
-  selectedGroup: null,
   groups: {},
   orders: {},
 }
