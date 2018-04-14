@@ -29,7 +29,7 @@ store.subscribe(state => {
 store.addEffect((state, action: GroupChangeAction) => {
   Lockr.sadd('groups', action.payload.key);
   api.addOrder(action.payload.key, action.payload.currentOrder);
-}, GroupChangeAction.name)
+}, GroupChangeAction)
 
 api.on(Events.GroupChange, (group: Group) => {
   store.dispatch(new GroupChangeAction(group));

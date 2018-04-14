@@ -2,6 +2,9 @@ import memoize from 'lodash-es/memoize';
 
 export type Subscriber<T> = (state: T) => void;
 export type Effect<T> = (state: T, action: Action<T>) => Action<T> | Action<T>[] | void
+export interface Type<T> extends Function {
+  new(...args: any[]): T
+}
 export class Action<T> {
   readonly type: string;
   reduce: (state: T) => T;
@@ -29,13 +32,13 @@ export class Store<T extends { [key: string]: any }> {
     };
   }
 
-  public addEffect(effect: Effect<T>, actionType: string) {
-    let s = this.effects.get(actionType);
+  public addEffect<A>(effect: Effect<T>, actionType: Type<A>) {
+    let s = this.effects.get(actionType.name);
     if (!s) {
       s = new Set();
     }
     s.add(effect);
-    this.effects.set(actionType, s);
+    this.effects.set(actionType.name, s);
   }
 
   public dispatch(action: Action<T>) {
