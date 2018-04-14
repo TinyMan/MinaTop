@@ -41,9 +41,15 @@ export const order = (order: Order) => html`
 </div>
 `
 
+export const no_order = () => html`
+<div class="no-order">
+  <span>Aucune commande en cours.</span>
+  <button>Proposer ma commande</button>
+</div>
+`
 export const group = (state: State, key: string) => {
   const group = state.groups[key];
-  const o = state.orders[group.currentOrder];
+  const o = state.orders[group.currentOrder!];
   const onToggle = (e: Event) => {
     const open = (e.target as HTMLDetailsElement).open;
     if (open) {
@@ -53,7 +59,7 @@ export const group = (state: State, key: string) => {
   return html`
 <details class="group" on-toggle="${onToggle}" open="${state.selectedGroup === key}">
   <summary>${group.key}</summary>
-  ${o ? order(o) : loader}
+  ${group.currentOrder ? (o ? order(o) : loader) : no_order()}
 </details>
 `
 }

@@ -1,4 +1,4 @@
 export interface Group {
   key: string;
-  currentOrder: string;
+  currentOrder: string | null | undefined;
 }

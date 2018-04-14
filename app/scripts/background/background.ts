@@ -21,7 +21,8 @@ store.subscribe(state => {
 
 store.addEffect((state, action: GroupChangeAction) => {
   Lockr.sadd('groups', action.payload.key);
-  api.addOrder(action.payload.key, action.payload.currentOrder);
+  if (action.payload.currentOrder)
+    api.addOrder(action.payload.key, action.payload.currentOrder);
 }, GroupChangeAction)
 store.addEffect((state, action: SelectGroupAction) => {
   Lockr.set('selectedGroup', action.payload);

@@ -18,23 +18,6 @@ button.start {
   width: 100%;
 }
 
-.groups .group {
-  h1 {
-    text-align: center;
-    margin: 5px 0;
-  }
-
-  .commande {
-    margin: auto;
-    width: fit-content;
-    font-size: 1.5em;
-
-    div {
-      margin-bottom: 5px;
-    }
-  }
-}
-
 .separator {
   width: 100%;
   border-bottom: 1px solid lighten(black, 80%);
@@ -99,7 +82,11 @@ input#group {
   font-size: 1.5em;
 }
 
-details{
+.groups details.group {
+  margin-top: 1px;
+  &:first-of-type {
+    margin-top: 0;
+  }
   summary {
     font-size: 1.5em;
     background-color: $btnColor;
@@ -107,6 +94,27 @@ details{
     color: white;
     font-weight: bold;
     cursor: pointer;
+  }
+
+  .no-order {
+    margin: 10px auto;
+    display: flex;
+    font-size: 1.2em;
+    flex-direction: column;
+    width: 50%;
+    align-items: center;
+    button {
+
+    }
+  }
+  .commande {
+    margin: 10px auto;
+    width: fit-content;
+    font-size: 1.5em;
+
+    div {
+      margin-bottom: 5px;
+    }
   }
 }
 
