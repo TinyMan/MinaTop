@@ -2,7 +2,7 @@
 import 'chromereload/devonly'
 import { MinaTopMessage, MessageType, NewStateMessage } from '../lib/MessageEvent'
 import { Store } from './store/store';
-import { State, initialState, UpdateCartAction, GroupChangeAction, OrderChangeAction, SelectGroupAction, AddGroupAction } from './store/actions';
+import { State, initialState, UpdateCartAction, GroupChangeAction, OrderChangeAction, SelectGroupAction, AddGroupAction, AddOrderAction } from './store/actions';
 import { Api, Events } from './api';
 import * as Lockr from 'lockr';
 import { Group } from '../lib/group';
@@ -19,18 +19,24 @@ store.subscribe(state => {
   chrome.runtime.sendMessage(new NewStateMessage(state));
 })
 
-store.addEffect((state, action: GroupChangeAction) => {
+/**
+ * Side Effects
+ */
+store.addEffect((action: GroupChangeAction) => {
   Lockr.sadd('groups', action.payload.key);
   if (action.payload.currentOrder)
     api.addOrder(action.payload.key, action.payload.currentOrder);
 }, GroupChangeAction)
-store.addEffect((state, action: SelectGroupAction) => {
+store.addEffect((action: SelectGroupAction) => {
   Lockr.set('selectedGroup', action.payload);
 }, SelectGroupAction);
-store.addEffect((state, action: AddGroupAction) => {
+store.addEffect((action: AddGroupAction) => {
   api.addGroup(action.payload);
   return new SelectGroupAction(action.payload);
 }, AddGroupAction);
+store.addEffect((action: AddOrderAction) => {
+  api.createOrder(action.group);
+}, AddOrderAction);
 
 api.on(Events.GroupChange, (group: Group) => {
   store.dispatch(new GroupChangeAction(group));
@@ -70,7 +76,8 @@ async function dispatcher(message: MinaTopMessage, sender: chrome.runtime.Messag
         callback(store.value);
         break;
       case MessageType.CreateOrder:
-        // const order = await api.createOrder(store.value.selectedGroup!, { author: 'TinyMan', expiration: Date.now() + 1000 * 60 * 120, fulfilled: false });
+        store.dispatch(new AddOrderAction(message.group));
+        // const order = await api.createOrder(store.value.selectedGroup, { author: 'TinyMan', expiration: Date.now() + 1000 * 60 * 120, fulfilled: false });
         // console.log('Order created', order);
         break;
       case MessageType.AddGroup:

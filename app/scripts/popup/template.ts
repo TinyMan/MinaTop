@@ -41,10 +41,10 @@ export const order = (order: Order) => html`
 </div>
 `
 
-export const no_order = () => html`
+export const no_order = (group) => html`
 <div class="no-order">
   <span>Aucune commande en cours.</span>
-  <button>Proposer ma commande</button>
+  <button on-click="${() => { sendMessage(new CreateOrderMessage(group)) }}">Proposer ma commande</button>
 </div>
 `
 export const group = (state: State, key: string) => {
@@ -59,7 +59,7 @@ export const group = (state: State, key: string) => {
   return html`
 <details class="group" on-toggle="${onToggle}" open="${state.selectedGroup === key}">
   <summary>${group.key}</summary>
-  ${group.currentOrder ? (o ? order(o) : loader) : no_order()}
+  ${group.currentOrder ? (o ? order(o) : loader) : no_order(group.key)}
 </details>
 `
 }

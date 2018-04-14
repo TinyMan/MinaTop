@@ -135,10 +135,18 @@ export class Api extends EventEmitter {
       })
   }
 
-  async createOrder(group: string, order: Order) {
+  async createOrder(group: string, {
+    expiration = Date.now() + 1000 * 60 * 120,
+    fulfilled = false
+  }: Partial<Order> = {}) {
     const db = await this.db;
-    await db.collection('groups').doc(group).collection('orders').add(order);
+    const o: Order = {
+      expiration,
+      fulfilled,
+      author: firebase.auth().currentUser!.uid,
+    };
+    const ref = await db.collection('groups').doc(group).collection('orders').add(o);
 
-    return order;
+    return o;
   }
 }

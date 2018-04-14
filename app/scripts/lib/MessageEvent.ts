@@ -31,6 +31,7 @@ export class GetStateMessage implements IMessage {
 }
 export class CreateOrderMessage implements IMessage {
   public readonly type = MessageType.CreateOrder;
+  constructor(public readonly group: string) { }
 }
 export class SelectGroupMessage implements IMessage {
   public readonly type = MessageType.SelectGroup;

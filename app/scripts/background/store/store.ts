@@ -1,7 +1,7 @@
 import memoize from 'lodash-es/memoize';
 
 export type Subscriber<T> = (state: T) => void;
-export type Effect<T> = (state: T, action: Action<T>) => Action<T> | Action<T>[] | void
+export type Effect<T> = (action: Action<T>) => Action<T> | Action<T>[] | void
 export interface Type<T> extends Function {
   new(...args: any[]): T
 }
@@ -47,7 +47,7 @@ export class Store<T extends { [key: string]: any }> {
     if (effects) {
       const actions: Action<T>[] = [];
       for (var e of effects.values()) {
-        const ret = e(this.state, action);
+        const ret = e(action);
         if (ret instanceof Action) {
           actions.push(ret);
         } else if (ret instanceof Array) {

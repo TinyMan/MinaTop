@@ -80,3 +80,8 @@ export class AddGroupAction extends Action<State> {
   constructor(public readonly payload: string) { super() }
 
 }
+export class AddOrderAction extends Action<State> {
+  public readonly type = "AddOrder";
+  constructor(public readonly group: string) { super() }
+
+}
