@@ -6,6 +6,7 @@ import { Order } from "../lib/Order";
 import { Cart } from "../lib/cart";
 import { EventEmitter } from "events";
 import { Group } from "../lib/group";
+import { ME } from "../lib/utils";
 
 export const Events = {
   SignIn: Symbol(),
@@ -84,8 +85,9 @@ export class Api extends EventEmitter {
     const data = order.data();
     if (data) {
       const g: Order = {
+        ...data,
+        author: data.author === firebase.auth().currentUser!.uid ? ME : data.author,
         key: order.id,
-        ...data
       } as Order;
       this.emit(Events.OrderChange, g);
     }

@@ -5,6 +5,7 @@ import { Order } from '../lib/Order';
 import { CreateOrderMessage, SelectGroupMessage } from '../lib/MessageEvent';
 import { sendMessage, addGroup } from './helper';
 import { Group } from '../lib/group';
+import { ME } from '../lib/utils';
 
 export const joinGroup = () => {
   const listener = (e: KeyboardEvent) => {
@@ -22,6 +23,12 @@ export const joinGroup = () => {
 export const loader = html`<div class="loader">Loading ...</div>`
 
 // <span class="participants-value">${order.participants}</span>
+export const btnCancel = (order: Order) => {
+  if (order.author === ME) {
+    return html`<button class="cancel">Annuler la commande</button>`
+  }
+  return ''
+}
 export const order = (order: Order) => html`
 
 <div class="commande">
@@ -38,6 +45,7 @@ export const order = (order: Order) => html`
   </div>
   <button>Participer</button>
   <button class="validate">Envoyer votre panier</button>
+  ${btnCancel(order)}
 </div>
 `
 
