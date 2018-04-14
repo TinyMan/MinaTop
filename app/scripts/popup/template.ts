@@ -27,15 +27,36 @@ export const btnCancel = (order: Order) => {
   if (order.author === ME) {
     return html`<button class="cancel" on-click="${() => sendMessage(new CancelOrderMessage(order))}">Annuler la commande</button>`
   }
-  return ''
+  return html``
+}
+export const btnSendCart = (order: Order) => {
+  if (order.author === ME) {
+    return html``;
+  }
+  return html`<button class="validate">Envoyer votre panier</button>`
+}
+export const btnParticipate = (order: Order) => {
+  if (order.author === ME) {
+    return html``;
+  }
+  return html`<button>Participer</button>`
+}
+export const order_author = (order: Order) => {
+  let a;
+  if (order.author === ME) {
+    a = html`<span>Votre commande</span>`
+  } else {
+    a = html`<span>Command effectuée par</span>
+<span class="author-value">${order.author}</span>`
+  }
+  return html`
+  <div class="author">
+    ${a}:
+  </div>`
 }
 export const order = (order: Order) => html`
-
-<div class="commande">
-  <div class="author">
-    <span>Command effectuée par</span>
-    <span class="author-value">${order.author}</span>
-  </div>
+<div class$="commande ${order.author === ME ? 'order-mine' : ''}">
+  ${order_author(order)}
   <div class="expiration">
     <span>Expiration:</span>
     <span class="expiration-value"></span>
@@ -43,9 +64,7 @@ export const order = (order: Order) => html`
   <div class="participants">
     <span>Participants:</span>
   </div>
-  <button>Participer</button>
-  <button class="validate">Envoyer votre panier</button>
-  ${btnCancel(order)}
+  ${btnParticipate(order)} ${btnSendCart(order)} ${btnCancel(order)}
 </div>
 `
 
