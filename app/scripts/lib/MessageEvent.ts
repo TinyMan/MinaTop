@@ -7,6 +7,7 @@ export enum MessageType {
   NewState = 'New State',
   GetState = 'Get State',
   CreateOrder = 'Create Order',
+  SelectGroup = 'Select Group',
   AddGroup = 'Add Group',
 }
 export interface IMessage {
@@ -31,6 +32,10 @@ export class GetStateMessage implements IMessage {
 export class CreateOrderMessage implements IMessage {
   public readonly type = MessageType.CreateOrder;
 }
+export class SelectGroupMessage implements IMessage {
+  public readonly type = MessageType.SelectGroup;
+  constructor(public readonly payload: string) { }
+}
 export class AddGroupMessage implements IMessage {
   public readonly type = MessageType.AddGroup;
   constructor(public readonly payload: string) { }
@@ -41,4 +46,5 @@ export type MinaTopMessage = UpdateCartMessage
   | NewStateMessage
   | GetStateMessage
   | CreateOrderMessage
+  | SelectGroupMessage
   | AddGroupMessage;

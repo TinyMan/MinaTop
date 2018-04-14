@@ -25,10 +25,22 @@ export class UpdateCartAction implements Action<State> {
   public readonly type = "UpdateCart";
   constructor(public readonly payload: Cart) { }
 
-  public reduce(state: State): State {
+  public reduce(state: State) {
     return {
       ...state,
       cart: this.payload
+    }
+  }
+}
+
+export class SelectGroupAction implements Action<State> {
+  public readonly type = 'SelectGroup';
+  constructor(public readonly payload: string) { }
+
+  public reduce(state: State) {
+    return {
+      ...state,
+      selectdGroup: this.payload,
     }
   }
 }
@@ -37,7 +49,7 @@ export class GroupChangeAction implements Action<State> {
   public readonly type = "GroupChange";
   constructor(public readonly payload: Group) { }
 
-  public reduce(state: State): State {
+  public reduce(state: State) {
     return {
       ...state,
       groups: {
@@ -51,7 +63,7 @@ export class OrderChangeAction implements Action<State> {
   public readonly type = "OrderChange";
   constructor(public readonly payload: Order) { }
 
-  public reduce(state: State): State {
+  public reduce(state: State) {
     return {
       ...state,
       orders: {

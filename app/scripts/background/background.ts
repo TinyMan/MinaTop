@@ -62,6 +62,7 @@ async function dispatcher(message: MinaTopMessage, sender: chrome.runtime.Messag
       case MessageType.AddGroup:
         api.addGroup(message.payload);
         break;
+      case MessageType.SelectGroup:
 
       default:
         callback('response')
