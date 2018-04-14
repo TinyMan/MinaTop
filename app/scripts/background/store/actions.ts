@@ -1,14 +1,18 @@
 import { Action } from "./store";
 import { Cart } from "../../lib/cart";
 import { Order } from "../../lib/Order";
+import { Group } from "../../lib/group";
 
 export interface State {
   readonly cart: Readonly<Cart>,
   readonly selectedOrder: Readonly<Order> | null,
   readonly selectedGroup: string | null,
-  readonly groupOrders: {
-    [key: string]: string
-  },
+  readonly groups: {
+    [key: string]: Group,
+  }
+  readonly orders: {
+    [key: string]: Order,
+  }
 }
 export const initialState: State = {
   cart: {
@@ -21,7 +25,8 @@ export const initialState: State = {
     fulfilled: false,
   },
   selectedGroup: null,
-  groupOrders: {},
+  groups: {},
+  orders: {},
 }
 
 export class UpdateCartAction implements Action<State> {
@@ -44,6 +49,35 @@ export class SelectGroupAction implements Action<State> {
     return {
       ...state,
       selectdGroup: this.payload,
+    }
+  }
+}
+
+export class GroupChangeAction implements Action<State> {
+  public readonly type = "GroupChange";
+  constructor(public readonly payload: Group) { }
+
+  public reduce(state: State) {
+    return {
+      ...state,
+      groups: {
+        ...state.groups,
+        [this.payload.key]: this.payload
+      }
+    }
+  }
+}
+export class OrderChangeAction implements Action<State> {
+  public readonly type = "OrderChange";
+  constructor(public readonly payload: Order) { }
+
+  public reduce(state: State) {
+    return {
+      ...state,
+      orders: {
+        ...state.orders,
+        [this.payload.key!]: this.payload
+      }
     }
   }
 }

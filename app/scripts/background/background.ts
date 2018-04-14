@@ -2,9 +2,11 @@
 import 'chromereload/devonly'
 import { MinaTopMessage, MessageType, NewStateMessage } from '../lib/MessageEvent'
 import { Store } from './store/store';
-import { State, initialState, UpdateCartAction } from './store/actions';
-import { Api } from './api';
+import { State, initialState, UpdateCartAction, GroupChangeAction, OrderChangeAction } from './store/actions';
+import { Api, Events } from './api';
 import * as Lockr from 'lockr';
+import { Group } from '../lib/group';
+import { Order } from '../lib/Order';
 
 const api = new Api();
 
@@ -20,8 +22,20 @@ groups.forEach(g => api.addGroup(g));
  */
 const store = new Store<State>(initialState);
 store.subscribe(state => {
-  console.log(state);
+  console.log("New state: ", state);
   chrome.runtime.sendMessage(new NewStateMessage(state));
+})
+
+store.addEffect((state, action: GroupChangeAction) => {
+  Lockr.sadd('groups', action.payload.key);
+  api.addOrder(action.payload.key, action.payload.currentOrder);
+}, GroupChangeAction.name)
+
+api.on(Events.GroupChange, (group: Group) => {
+  store.dispatch(new GroupChangeAction(group));
+})
+api.on(Events.OrderChange, (order: Order) => {
+  store.dispatch(new OrderChangeAction(order));
 })
 
 
@@ -47,7 +61,6 @@ async function dispatcher(message: MinaTopMessage, sender: chrome.runtime.Messag
         break;
       case MessageType.AddGroup:
         api.addGroup(message.payload);
-        Lockr.sadd('groups', message.payload);
         break;
       case MessageType.SelectGroup:
 

@@ -1,13 +1,15 @@
 import memoize from 'lodash-es/memoize';
 
 export type Subscriber<T> = (state: T) => void;
-export interface Action<T> {
+export type Effect<T> = (state: T, action: Action<T>) => Action<T> | Action<T>[] | void
+export class Action<T> {
   readonly type: string;
   reduce: (state: T) => T;
 }
 
 export class Store<T extends { [key: string]: any }> {
   private subscribers: Subscriber<T>[];
+  private effects = new Map<string, Set<Effect<T>>>();
   private state: T;
 
   constructor(initialState: T) {
@@ -27,8 +29,29 @@ export class Store<T extends { [key: string]: any }> {
     };
   }
 
+  public addEffect(effect: Effect<T>, actionType: string) {
+    let s = this.effects.get(actionType);
+    if (!s) {
+      s = new Set();
+    }
+    s.add(effect);
+    this.effects.set(actionType, s);
+  }
+
   public dispatch(action: Action<T>) {
     this.state = this.reduce(this.state, action);
+    const effects = this.effects.get(action.constructor.name)
+    if (effects) {
+      const actions: Action<T>[] = [];
+      for (var e of effects.values()) {
+        const ret = e(this.state, action);
+        if (ret instanceof Action) {
+          actions.push(ret);
+        } else if (ret instanceof Array) {
+          actions.push(...ret);
+        }
+      }
+    }
     this.notify();
   }
 

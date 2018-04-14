@@ -3,11 +3,23 @@ import { State } from '../background/store/actions';
 import { CartItem, Cart } from '../lib/cart';
 import { Order } from '../lib/Order';
 import { CreateOrderMessage } from '../lib/MessageEvent';
-import { sendMessage } from './helper';
+import { sendMessage, addGroup } from './helper';
+import { Group } from '../lib/group';
 
-export const btnCreate = () => html`
-<button class="start" on-click=${()=> sendMessage(new CreateOrderMessage())}>Démarrer une commande groupée</button>
-`;
+export const joinGroup = () => {
+  const listener = (e: KeyboardEvent) => {
+    if (e && e.code === 'Enter' && e.target) {
+      const target = e.target as HTMLInputElement;
+      addGroup(target.value)
+      target.value = '';
+    }
+  };
+  return html`
+<input placeholder="Rejoindre un groupe" type="text" name="group" id="group" on-keypress="${listener}">
+`
+}
+
+export const loader = html`<div class="loader">Loading ...</div>`
 
 // <span class="participants-value">${order.participants}</span>
 export const order = (order: Order) => html`
@@ -24,15 +36,24 @@ export const order = (order: Order) => html`
   <div class="participants">
     <span>Participants:</span>
   </div>
-  <button>Je suis intéressé</button>
+  <button>Participer</button>
 </div>
 `
+
+export const group = (state: State, key: string) => {
+  const group = state.groups[key];
+  const o = state.orders[group.currentOrder];
+  return html`
+<details class="group">
+  <summary>${group.key}</summary>
+  ${o ? order(o) : loader}
+</details>
+`
+}
+
 export const groups = (state: State) => html`
 <div class="groups">
-  <div class="group">
-    <h1>${state.selectedGroup}</h1>
-    ${order(state.selectedOrder!)}
-  </div>
+  ${Object.keys(state.groups).map(k => group(state, k))}
 </div>
 `;
 
@@ -83,5 +104,5 @@ export const table = (state: State) => html`
 </table>`;
 
 export const popup = (state: State) => html`
-${btnCreate()} ${groups(state)} ${separator} ${table(state)}
+${joinGroup()} ${groups(state)} ${separator} ${table(state)}
 `
