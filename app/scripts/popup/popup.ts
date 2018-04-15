@@ -3,12 +3,16 @@ import 'chromereload/devonly'
 
 import { render } from 'lit-html';
 import { MinaTopMessage, MessageType, GetStateMessage } from '../lib/MessageEvent';
-import { popup } from './template';
+import { popup, expiration } from './template';
 import { State } from '../background/store/actions';
 
 const renderPopup = (() => {
   const el = document.getElementById('popup')!;
-  return (state: State) => render(popup(state), el)
+  let lastState;
+  return (state?: State) => {
+    render(popup(state ? state : lastState), el);
+    lastState = state;
+  }
 })()
 
 chrome.runtime.onMessage.addListener((message: MinaTopMessage, sender, callback) => {
@@ -22,3 +26,15 @@ chrome.runtime.onMessage.addListener((message: MinaTopMessage, sender, callback)
 })
 
 chrome.runtime.sendMessage(new GetStateMessage(), renderPopup);
+
+setInterval(() => {
+  const els = document.getElementsByClassName('expiration-value');
+  for (let i = 0; i < els.length; i++) {
+    const el = els.item(i);
+    const expAttr = el.attributes.getNamedItem('data-expiration');
+    if (expAttr) {
+      const exp = parseInt(expAttr.value, 10);
+      render(expiration(exp), el);
+    }
+  }
+}, 1000);
