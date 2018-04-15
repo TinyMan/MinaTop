@@ -47,7 +47,7 @@ export const order_author = (order: Order) => {
     a = html`<span>Votre commande</span>`
   } else {
     a = html`<span>Command effectuée par</span>
-<span class="author-value">${order.author}</span>`
+<span class="author-value">${order.authorName}</span>`
   }
   return html`
   <div class="author">

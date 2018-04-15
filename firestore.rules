@@ -21,6 +21,8 @@ service cloud.firestore {
                       && existingData().cancelled == false
                       && incomingData().cancelled == true));
         allow create: if isSignedIn()
+                      && incomingData().keys().hasAll(['author', 'authorName', 'fulfilled', 'expiration', 'cancelled'])
+                      && incomingData().authorName != ''
                       && incomingData().author == request.auth.uid
                       && incomingData().fulfilled == false
                       && incomingData().expiration < request.time.toMillis() + 18000000
