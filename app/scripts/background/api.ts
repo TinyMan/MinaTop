@@ -70,7 +70,14 @@ export class Api extends EventEmitter {
       const groupRef = await this.ensureGroup(group);
       orderRef = groupRef.collection('orders').doc(order);
       this.orders.set(order, orderRef);
-      this.orderUnsubscribers.set(order, orderRef.onSnapshot(this.onOrderSnapshot.bind(this)));
+      this.orderUnsubscribers.set(order, orderRef.onSnapshot(this.onOrderSnapshot.bind(this), () => {
+        // on error
+        const uns = this.orderUnsubscribers.get(order);
+        // unsubscribe
+        if (uns) uns();
+        this.orderUnsubscribers.delete(order);
+        this.orders.delete(order);
+      }));
     }
     return orderRef;
   }
