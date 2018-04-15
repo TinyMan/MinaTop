@@ -1,7 +1,7 @@
 import memoize from 'lodash-es/memoize';
 
 export type Subscriber<T> = (state: T) => void;
-export type Effect<T> = (action: Action<T>) => Action<T> | Action<T>[] | void
+export type Effect<T> = (action: Action<T>) => Promise<Action<T> | Action<T>[] | void>
 export interface Type<T> extends Function {
   new(...args: any[]): T
 }
@@ -47,16 +47,20 @@ export class Store<T extends { [key: string]: any }> {
     if (effects) {
       const actions: Action<T>[] = [];
       for (var e of effects.values()) {
-        const ret = e(action);
-        if (ret instanceof Action) {
-          actions.push(ret);
-        } else if (ret instanceof Array) {
-          actions.push(...ret);
-        }
+        this.runEffect(e, action);
       }
-      setTimeout(() => actions.forEach(a => this.dispatch(a)), 0);
     }
     this.notify();
+  }
+  public async runEffect(effect: Effect<T>, action: Action<T>) {
+    const actions: Action<T>[] = [];
+    const ret = await effect(action);
+    if (ret instanceof Action) {
+      actions.push(ret);
+    } else if (ret instanceof Array) {
+      actions.push(...ret);
+    }
+    actions.forEach(a => this.dispatch(a));
   }
 
   private reduce(state: T, action: Action<T>) {

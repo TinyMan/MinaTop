@@ -2,7 +2,7 @@
 import 'chromereload/devonly'
 import { MinaTopMessage, MessageType, NewStateMessage } from '../lib/MessageEvent'
 import { Store } from './store/store';
-import { State, initialState, UpdateCartAction, GroupChangeAction, OrderChangeAction, SelectGroupAction, AddGroupAction, AddOrderAction, CancelOrderAction } from './store/actions';
+import { State, initialState, UpdateCartAction, GroupChangeAction, OrderChangeAction, SelectGroupAction, AddGroupAction, AddOrderAction, CancelOrderAction, AddOrderSuccessAction, CancelOrderSuccessAction } from './store/actions';
 import { Api, Events } from './api';
 import * as Lockr from 'lockr';
 import { Group } from '../lib/group';
@@ -22,23 +22,25 @@ store.subscribe(state => {
 /**
  * Side Effects
  */
-store.addEffect((action: GroupChangeAction) => {
+store.addEffect(async (action: GroupChangeAction) => {
   Lockr.sadd('groups', action.payload.key);
   if (action.payload.currentOrder)
     api.ensureOrder(action.payload.key, action.payload.currentOrder);
 }, GroupChangeAction)
-store.addEffect((action: SelectGroupAction) => {
+store.addEffect(async (action: SelectGroupAction) => {
   Lockr.set('selectedGroup', action.payload);
 }, SelectGroupAction);
-store.addEffect((action: AddGroupAction) => {
+store.addEffect(async (action: AddGroupAction) => {
   api.ensureGroup(action.payload);
   return new SelectGroupAction(action.payload);
 }, AddGroupAction);
-store.addEffect((action: AddOrderAction) => {
-  api.createOrder(action.group);
+store.addEffect(async (action: AddOrderAction) => {
+  const order = await api.createOrder(action.group);
+  return new AddOrderSuccessAction(order);
 }, AddOrderAction);
-store.addEffect((action: CancelOrderAction) => {
-  api.cancelOrder(action.payload.group, action.payload.key!);
+store.addEffect(async (action: CancelOrderAction) => {
+  await api.cancelOrder(action.payload.group, action.payload.key!);
+  return new CancelOrderSuccessAction(action.payload);
 }, CancelOrderAction);
 
 api.on(Events.GroupChange, (group: Group) => {

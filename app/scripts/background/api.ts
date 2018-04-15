@@ -152,7 +152,7 @@ export class Api extends EventEmitter {
     expiration = Date.now() + 1000 * 60 * 120,
     fulfilled = false,
     cancelled = false,
-  }: Partial<Order> = {}) {
+  }: Partial<Order> = {}): Promise<Order> {
     const db = await this.db;
     const o: Order = {
       expiration,
@@ -164,7 +164,11 @@ export class Api extends EventEmitter {
     };
     const ref = await db.collection('groups').doc(group).collection('orders').add(o);
 
-    return o;
+    return {
+      ...o,
+      author: ME,
+      key: ref.id
+    }
   }
   async cancelOrder(group: string, order: string) {
     const db = await this.db;

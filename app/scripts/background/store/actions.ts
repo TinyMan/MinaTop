@@ -85,8 +85,48 @@ export class AddOrderAction extends Action<State> {
   constructor(public readonly group: string) { super() }
 
 }
+export class AddOrderSuccessAction extends Action<State> {
+  public readonly type = "AddOrderSuccess";
+  constructor(public readonly payload: Order) { super() }
+
+  public reduce(state: State): State {
+    if (this.payload.key) {
+      return {
+        ...state,
+        groups: {
+          ...state.groups,
+          [this.payload.group]: {
+            ...state.groups[this.payload.group],
+            currentOrder: this.payload.key
+          }
+        },
+        orders: {
+          ...state.orders,
+          [this.payload.key]: this.payload,
+        }
+      }
+    } else return state;
+  }
+
+}
 export class CancelOrderAction extends Action<State> {
   public readonly type = "CancelOrder";
   constructor(public readonly payload: Order) { super() }
+}
+export class CancelOrderSuccessAction extends Action<State> {
+  public readonly type = "CancelOrderSuccess";
+  constructor(public readonly payload: Order) { super() }
 
+  public reduce(state: State): State {
+    return {
+      ...state,
+      groups: {
+        ...state.groups,
+        [this.payload.group]: {
+          ...state.groups[this.payload.group],
+          currentOrder: null
+        }
+      }
+    }
+  }
 }
