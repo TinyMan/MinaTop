@@ -3,7 +3,7 @@ import { State } from '../background/store/actions';
 import { CartItem, Cart } from '../lib/cart';
 import { Order } from '../lib/Order';
 import { CreateOrderMessage, SelectGroupMessage, CancelOrderMessage } from '../lib/MessageEvent';
-import { sendMessage, addGroup, getTimeRemaining, leadingZero, getClassTimeRemaining } from './helper';
+import { sendMessage, addGroup, getTimeRemaining, leadingZero, getClassTimeRemaining, pluralize } from './helper';
 import { Group } from '../lib/group';
 import { ME } from '../lib/utils';
 
@@ -59,13 +59,25 @@ export const expiration = (expiration: number) => {
   let content = '';
   if (msDiff < 0)
     content = `Expirée`;
-  else if (hours <= 0)
-    if (minutes <= 0)
-      content = `${seconds} secondes`;
-    else
-      content = `${minutes} minutes`;
-  else
-    content = `${hours} heures`;
+  else {
+    let amount = 0;
+    let text = '';
+    if (hours <= 0) {
+      if (minutes <= 0) {
+        amount = seconds;
+        text = `seconde`;
+      }
+      else {
+        amount = minutes;
+        text = `minute`;
+      }
+    }
+    else {
+      amount = hours;
+      text = `heure`;
+    }
+    content = amount + ' ' + (amount > 1 ? pluralize(text) : text);
+  }
 
   return html`<span class$="${getClassTimeRemaining(expiration)}">${content}</span>`;
 }

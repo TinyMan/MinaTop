@@ -42,3 +42,7 @@ export function leadingZero(n: number, size = 2): string {
   var s = "000000000" + n;
   return s.substr(s.length - size);
 }
+
+export function pluralize(text: string) {
+  return text.replace(/(\w+) ?/g, '$1s ').trim();
+}
