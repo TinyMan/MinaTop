@@ -9,3 +9,8 @@ export interface Cart {
   items: CartItem[],
   total: number,
 }
+
+export interface CartRecord extends Cart {
+  key?: string,
+  order: string;
+}

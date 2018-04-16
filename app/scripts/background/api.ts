@@ -3,7 +3,7 @@ import * as firebase from "firebase";
 import 'firebase/firestore';
 import { firebase as fbConf } from './config'
 import { Order } from "../lib/Order";
-import { Cart } from "../lib/cart";
+import { Cart, CartRecord } from "../lib/cart";
 import { EventEmitter } from "events";
 import { Group } from "../lib/group";
 import { ME } from "../lib/utils";
@@ -14,6 +14,8 @@ export const Events = {
 
   GroupChange: Symbol(),
   OrderChange: Symbol(),
+  CartChange: Symbol(),
+  CartRemove: Symbol(),
 
 }
 export class Api extends EventEmitter {
@@ -36,6 +38,7 @@ export class Api extends EventEmitter {
 
   private orders = new Map<string, firebase.firestore.DocumentReference>();
   private orderUnsubscribers = new Map<string, () => void>();
+  private cartUnsubscribers = new Map<string, () => void>();
 
   constructor() {
     super();
@@ -63,19 +66,24 @@ export class Api extends EventEmitter {
     }
     return groupRef;
   }
-  public async ensureOrder(group: string, order: string) {
+  public async ensureOrder(order: string, group?: string) {
     let orderRef = this.orders.get(order);
     if (!orderRef) {
+      if (!group) throw new Error('Order not found and group not filled');
       const db = await this.db;
       const groupRef = await this.ensureGroup(group);
       orderRef = groupRef.collection('orders').doc(order);
       this.orders.set(order, orderRef);
+      this.cartUnsubscribers.set(order, orderRef.collection('carts').doc(firebase.auth().currentUser!.uid).onSnapshot({ includeMetadataChanges: false }, { next: this.onCartSnapshot.bind(this) }));
       this.orderUnsubscribers.set(order, orderRef.onSnapshot(this.onOrderSnapshot.bind(this), () => {
         // on error
         const uns = this.orderUnsubscribers.get(order);
+        const cart = this.cartUnsubscribers.get(order);
         // unsubscribe
         if (uns) uns();
+        if (cart) cart();
         this.orderUnsubscribers.delete(order);
+        this.cartUnsubscribers.delete(order);
         this.orders.delete(order);
       }));
     }
@@ -101,6 +109,19 @@ export class Api extends EventEmitter {
         key: order.id,
       } as Order;
       this.emit(Events.OrderChange, g);
+    }
+  }
+  public async onCartSnapshot(cart: firebase.firestore.DocumentSnapshot) {
+    const data = cart.data() as Cart;
+    if (data) {
+      const o: CartRecord = {
+        ...data,
+        order: cart.ref.parent.parent!.id,
+        key: cart.id === firebase.auth().currentUser!.uid ? ME : cart.id,
+      }
+      this.emit(Events.CartChange, o);
+    } else if (!cart.exists) {
+      this.emit(Events.CartRemove, cart.ref.parent.parent!.id);
     }
   }
 
@@ -131,14 +152,17 @@ export class Api extends EventEmitter {
     }
   }
 
-  async sendCart(group: string, order: string, cart: Cart) {
-    const db = await this.db;
-    return await db.collection('groups').doc(group)
-      .collection('orders').doc(order)
+  async sendCart(cart: CartRecord) {
+    const order = await this.ensureOrder(cart.order);
+    return await order
       .collection('carts').doc(firebase.auth().currentUser!.uid)
       .set(cart);
   }
 
+  async removeCart(order: string) {
+    const o = await this.ensureOrder(order);
+    return await o.collection('carts').doc(firebase.auth().currentUser!.uid).delete();
+  }
   async fulfillOrder(group: string, order: string) {
     const db = await this.db;
     return await db.collection('groups').doc(group)
@@ -173,7 +197,7 @@ export class Api extends EventEmitter {
   async cancelOrder(group: string, order: string) {
     const db = await this.db;
     console.log('Cancel order', group, order);
-    const orderRef = await this.ensureOrder(group, order);
+    const orderRef = await this.ensureOrder(order, group);
     return await orderRef.update({
       cancelled: true
     });

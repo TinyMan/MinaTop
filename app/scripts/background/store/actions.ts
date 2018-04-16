@@ -12,6 +12,7 @@ export interface State {
     [key: string]: Order,
   }
   readonly selectedGroup: string | null;
+  readonly participate: { [key: string]: boolean };
 }
 export const initialState: State = {
   cart: {
@@ -21,6 +22,7 @@ export const initialState: State = {
   groups: {},
   orders: {},
   selectedGroup: null,
+  participate: {},
 }
 
 export class UpdateCartAction extends Action<State> {
@@ -112,6 +114,25 @@ export class AddOrderSuccessAction extends Action<State> {
 export class CancelOrderAction extends Action<State> {
   public readonly type = "CancelOrder";
   constructor(public readonly payload: Order) { super() }
+}
+export class ParticipateAction extends Action<State> {
+  public readonly type = "Participate";
+  constructor(public readonly payload: { order: string, participate: boolean }) { super() }
+
+}
+export class ParticipateSuccessAction extends Action<State> {
+  public readonly type = "ParticipateSuccess";
+  constructor(public readonly payload: { order: string, participate: boolean }) { super() }
+
+  public reduce(state: State): State {
+    return {
+      ...state,
+      participate: {
+        ...state.participate,
+        [this.payload.order]: this.payload.participate,
+      },
+    }
+  }
 }
 export class CancelOrderSuccessAction extends Action<State> {
   public readonly type = "CancelOrderSuccess";

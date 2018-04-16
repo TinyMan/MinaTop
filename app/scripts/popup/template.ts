@@ -2,7 +2,7 @@ import { html, render } from 'lit-html/lib/lit-extended';
 import { State } from '../background/store/actions';
 import { CartItem, Cart } from '../lib/cart';
 import { Order } from '../lib/Order';
-import { CreateOrderMessage, SelectGroupMessage, CancelOrderMessage } from '../lib/MessageEvent';
+import { CreateOrderMessage, SelectGroupMessage, CancelOrderMessage, ToggleParticipateMessage } from '../lib/MessageEvent';
 import { sendMessage, addGroup, getTimeRemaining, leadingZero, getClassTimeRemaining, pluralize } from './helper';
 import { Group } from '../lib/group';
 import { ME } from '../lib/utils';
@@ -35,11 +35,11 @@ export const btnSendCart = (order: Order) => {
   }
   return html`<button class="validate">Envoyer votre panier</button>`
 }
-export const btnParticipate = (order: Order) => {
+export const btnParticipate = (order: Order, participate: boolean) => {
   if (order.author === ME) {
     return html``;
   }
-  return html`<button>Participer</button>`
+  return html`<button on-click="${() => sendMessage(new ToggleParticipateMessage(order.key!))}">${participate ? 'Ne plus participer' : 'Participer'}</button>`
 }
 export const order_author = (order: Order) => {
   let a;
@@ -82,7 +82,9 @@ export const expiration = (expiration: number) => {
   return html`<span class$="${getClassTimeRemaining(expiration)}">${content}</span>`;
 }
 
-export const order = (order: Order) => html`
+export const order = (state: State, order: Order) => {
+  const p = !!state.participate[order.key!];
+  return html`
 <div class$="commande ${order.author === ME ? 'order-mine' : ''}">
   ${order_author(order)}
   <div class="expiration">
@@ -92,9 +94,10 @@ export const order = (order: Order) => html`
   <div class="participants">
     <span>Participants:</span>
   </div>
-  ${btnParticipate(order)} ${btnSendCart(order)} ${btnCancel(order)}
+  ${btnParticipate(order, p)} ${p ? btnSendCart(order) : ''} ${btnCancel(order)}
 </div>
 `
+}
 
 export const no_order = (group) => html`
 <div class="no-order">
@@ -114,7 +117,7 @@ export const group = (state: State, key: string) => {
   return html`
 <details class="group" on-toggle="${onToggle}" open="${state.selectedGroup === key}">
   <summary>${group.key}</summary>
-  ${group.currentOrder ? (o ? order(o) : loader) : no_order(group.key)}
+  ${group.currentOrder ? (o ? order(state, o) : loader) : no_order(group.key)}
 </details>
 `
 }
