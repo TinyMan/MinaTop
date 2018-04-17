@@ -2,7 +2,7 @@
 import 'chromereload/devonly'
 import { MinaTopMessage, MessageType, NewStateMessage } from '../lib/MessageEvent'
 import { Store } from './store/store';
-import { State, initialState, UpdateCartAction, GroupChangeAction, OrderChangeAction, SelectGroupAction, AddGroupAction, AddOrderAction, CancelOrderAction, AddOrderSuccessAction, CancelOrderSuccessAction, ParticipateAction, ParticipateSuccessAction } from './store/actions';
+import { State, initialState, UpdateCartAction, GroupChangeAction, OrderChangeAction, SelectGroupAction, AddGroupAction, AddOrderAction, CancelOrderAction, AddOrderSuccessAction, CancelOrderSuccessAction, ParticipateAction, RemoteCartUpdateAction, SendCartAction, RemoteCartRemoveAction } from './store/actions';
 import { Api, Events } from './api';
 import * as Lockr from 'lockr';
 import { Group } from '../lib/group';
@@ -49,6 +49,9 @@ store.addEffect(async (action: ParticipateAction) => {
     await api.sendCart({ order: action.payload.order, total: 0, items: [] });
   else await api.removeCart(action.payload.order);
 }, ParticipateAction);
+store.addEffect(async (action: SendCartAction) => {
+  await api.sendCart({ order: action.order, ...store.value.cart });
+}, SendCartAction);
 
 api.on(Events.GroupChange, (group: Group) => {
   store.dispatch(new GroupChangeAction(group));
@@ -57,10 +60,10 @@ api.on(Events.OrderChange, (order: Order) => {
   store.dispatch(new OrderChangeAction(order));
 })
 api.on(Events.CartChange, (cart: CartRecord) => {
-  if (cart.key === ME) store.dispatch(new ParticipateSuccessAction({ order: cart.order, participate: true }));
+  if (cart.key === ME) store.dispatch(new RemoteCartUpdateAction(cart));
 })
 api.on(Events.CartRemove, (order: string) => {
-  store.dispatch(new ParticipateSuccessAction({ order, participate: false }));
+  store.dispatch(new RemoteCartRemoveAction(order));
 })
 
 /**
@@ -108,7 +111,10 @@ async function dispatcher(message: MinaTopMessage, sender: chrome.runtime.Messag
         store.dispatch(new CancelOrderAction({ ...message.payload }));
         break;
       case MessageType.ToggleParticipate:
-        store.dispatch(new ParticipateAction({ order: message.payload, participate: !store.value.participate[message.payload] }));
+        store.dispatch(new ParticipateAction({ order: message.payload, participate: !(message.payload in store.value.remoteCarts) }));
+        break;
+      case MessageType.SendCart:
+        store.dispatch(new SendCartAction(message.payload));
         break;
       default:
         callback('response')

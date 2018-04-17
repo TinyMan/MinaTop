@@ -2,7 +2,7 @@ import { html, render } from 'lit-html/lib/lit-extended';
 import { State } from '../background/store/actions';
 import { CartItem, Cart } from '../lib/cart';
 import { Order } from '../lib/Order';
-import { CreateOrderMessage, SelectGroupMessage, CancelOrderMessage, ToggleParticipateMessage } from '../lib/MessageEvent';
+import { CreateOrderMessage, SelectGroupMessage, CancelOrderMessage, ToggleParticipateMessage, SendCartMessage } from '../lib/MessageEvent';
 import { sendMessage, addGroup, getTimeRemaining, leadingZero, getClassTimeRemaining, pluralize } from './helper';
 import { Group } from '../lib/group';
 import { ME } from '../lib/utils';
@@ -30,10 +30,10 @@ export const btnCancel = (order: Order) => {
   return html``
 }
 export const btnSendCart = (order: Order, state: State) => {
-  if (order.author === ME || state.cart.total <= 0) {
+  if (order.author === ME) {
     return html``;
   }
-  return html`<button class="validate">Envoyer votre panier</button>`
+  return html`<button class="validate" on-click="${() => sendMessage(new SendCartMessage(order.key!))}" disabled="${state.cart.total <= 0 || !state.remoteCarts[order.key!].outdated}">Envoyer votre panier</button>`
 }
 export const btnParticipate = (order: Order, participate: boolean) => {
   if (order.author === ME) {
@@ -83,7 +83,7 @@ export const expiration = (expiration: number) => {
 }
 
 export const order = (state: State, order: Order) => {
-  const p = !!state.participate[order.key!];
+  const p = (order.key! in state.remoteCarts);
   return html`
 <div class$="commande ${order.author === ME ? 'order-mine' : ''}">
   ${order_author(order)}

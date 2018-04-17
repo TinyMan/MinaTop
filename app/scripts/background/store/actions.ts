@@ -1,5 +1,5 @@
 import { Action } from "./store";
-import { Cart } from "../../lib/cart";
+import { Cart, CartRecord, cartEquals } from "../../lib/cart";
 import { Order } from "../../lib/Order";
 import { Group } from "../../lib/group";
 
@@ -12,7 +12,9 @@ export interface State {
     [key: string]: Order,
   }
   readonly selectedGroup: string | null;
-  readonly participate: { [key: string]: boolean };
+  readonly remoteCarts: {
+    [key: string]: Readonly<CartRecord & { outdated: boolean }>
+  };
 }
 export const initialState: State = {
   cart: {
@@ -22,7 +24,7 @@ export const initialState: State = {
   groups: {},
   orders: {},
   selectedGroup: null,
-  participate: {},
+  remoteCarts: {},
 }
 
 export class UpdateCartAction extends Action<State> {
@@ -30,9 +32,17 @@ export class UpdateCartAction extends Action<State> {
   constructor(public readonly payload: Cart) { super() }
 
   public reduce(state: State): State {
+    const remoteCarts = Object.values(state.remoteCarts).map(rc => ({
+      ...rc,
+      outdated: !cartEquals(rc, this.payload),
+    })).reduce((acc, el) => ({
+      ...acc,
+      [el.order]: el,
+    }), {});
     return {
       ...state,
-      cart: this.payload
+      cart: this.payload,
+      remoteCarts,
     }
   }
 }
@@ -120,17 +130,33 @@ export class ParticipateAction extends Action<State> {
   constructor(public readonly payload: { order: string, participate: boolean }) { super() }
 
 }
-export class ParticipateSuccessAction extends Action<State> {
-  public readonly type = "ParticipateSuccess";
-  constructor(public readonly payload: { order: string, participate: boolean }) { super() }
+export class RemoteCartUpdateAction extends Action<State> {
+  public readonly type = "RemoteCartUpdate";
+  constructor(public readonly payload: CartRecord) { super() }
 
   public reduce(state: State): State {
     return {
       ...state,
-      participate: {
-        ...state.participate,
-        [this.payload.order]: this.payload.participate,
+      remoteCarts: {
+        ...state.remoteCarts,
+        [this.payload.order]: {
+          ...this.payload,
+          outdated: !cartEquals(this.payload, state.cart),
+        }
       },
+    }
+  }
+}
+export class RemoteCartRemoveAction extends Action<State> {
+  public readonly type = "RemoteCartRemove";
+  constructor(public readonly payload: string) { super() }
+
+  public reduce(state: State): State {
+    const remoteCarts = { ...state.remoteCarts };
+    delete remoteCarts[this.payload];
+    return {
+      ...state,
+      remoteCarts,
     }
   }
 }
@@ -150,4 +176,9 @@ export class CancelOrderSuccessAction extends Action<State> {
       }
     }
   }
+}
+export class SendCartAction extends Action<State> {
+  public readonly type = "SendCart";
+  constructor(public readonly order: string) { super() }
+
 }

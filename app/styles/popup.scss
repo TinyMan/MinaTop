@@ -13,6 +13,9 @@ button {
   height: 25px;
   padding: 5px;
   cursor: pointer;
+  &:disabled {
+    background-color: lighten($btnColor, 30%);
+  }
 }
 button.start {
   width: 100%;
