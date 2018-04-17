@@ -45,8 +45,8 @@ service cloud.firestore {
             return isSignedIn() && request.auth.uid == getParentOrder().author;
           }
         	allow list: if isAuthor();
-          allow get: if cart == request.auth.uid;
-          allow write: if isSignedIn() && request.auth.uid == cart && getParentOrder().fulfilled == false;
+          allow get: if isSignedIn() && cart == request.auth.uid;
+          allow write: if isSignedIn() && request.auth.uid == cart && getParentGroup().currentOrder == order;
         }
       }
     }
