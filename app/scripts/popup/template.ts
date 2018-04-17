@@ -2,7 +2,7 @@ import { html, render } from 'lit-html/lib/lit-extended';
 import { State } from '../background/store/actions';
 import { CartItem, Cart } from '../lib/cart';
 import { Order } from '../lib/Order';
-import { CreateOrderMessage, SelectGroupMessage, CancelOrderMessage, ToggleParticipateMessage, SendCartMessage } from '../lib/MessageEvent';
+import { CreateOrderMessage, SelectGroupMessage, CancelOrderMessage, ToggleParticipateMessage, SendCartMessage, OrderMessage } from '../lib/MessageEvent';
 import { sendMessage, addGroup, getTimeRemaining, leadingZero, getClassTimeRemaining, pluralize } from './helper';
 import { Group } from '../lib/group';
 import { ME } from '../lib/utils';
@@ -26,6 +26,12 @@ export const loader = html`<div class="loader">Loading ...</div>`
 export const btnCancel = (order: Order) => {
   if (order.author === ME) {
     return html`<button class="cancel" on-click="${() => sendMessage(new CancelOrderMessage(order))}">Annuler la commande</button>`
+  }
+  return html``
+}
+export const btnOrder = (order: Order) => {
+  if (order.author === ME) {
+    return html`<button class="validate" on-click="${() => sendMessage(new OrderMessage(order))}">Passer la commande</button>`
   }
   return html``
 }
@@ -94,7 +100,7 @@ export const order = (state: State, order: Order) => {
   <div class="participants">
     <span>Participants:</span>
   </div>
-  ${btnParticipate(order, p)} ${p ? btnSendCart(order, state) : ''} ${btnCancel(order)}
+  ${btnParticipate(order, p)} ${p ? btnSendCart(order, state) : ''} ${btnCancel(order)} ${btnOrder(order)}
 </div>
 `
 }
