@@ -29,8 +29,8 @@ export const btnCancel = (order: Order) => {
   }
   return html``
 }
-export const btnSendCart = (order: Order) => {
-  if (order.author === ME) {
+export const btnSendCart = (order: Order, state: State) => {
+  if (order.author === ME || state.cart.total <= 0) {
     return html``;
   }
   return html`<button class="validate">Envoyer votre panier</button>`
@@ -94,7 +94,7 @@ export const order = (state: State, order: Order) => {
   <div class="participants">
     <span>Participants:</span>
   </div>
-  ${btnParticipate(order, p)} ${p ? btnSendCart(order) : ''} ${btnCancel(order)}
+  ${btnParticipate(order, p)} ${p ? btnSendCart(order, state) : ''} ${btnCancel(order)}
 </div>
 `
 }
