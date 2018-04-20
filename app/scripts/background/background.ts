@@ -10,6 +10,7 @@ import { Order } from '../lib/Order';
 import { CartRecord } from '../lib/cart';
 import { ME } from '../lib/utils';
 import { decodeCart } from '../lib/cookie';
+import { Notifs } from '../lib/notifs';
 
 const cookieName = '13222d2a2631002f2a262d37';
 const api = new Api();
@@ -28,8 +29,12 @@ store.subscribe(state => {
  */
 store.addEffect(async (action: GroupChangeAction) => {
   Lockr.sadd('groups', action.payload.key);
-  if (action.payload.currentOrder)
+  if (action.payload.currentOrder) {
     api.ensureOrder(action.payload.currentOrder, action.payload.key);
+    if (action.payload.currentOrder !== store.value.groups[action.payload.key].currentOrder) {
+      onNewOrder(action.payload);
+    }
+  }
 }, GroupChangeAction)
 store.addEffect(async (action: SelectGroupAction) => {
   Lockr.set('selectedGroup', action.payload);
@@ -151,9 +156,18 @@ chrome.cookies.onChanged.addListener(changeInfo => {
 })
 
 chrome.cookies.get({
-  url: "http://www.minato91.fr",
+  url: "https://www.minato91.fr",
   name: cookieName,
 }, cookie => cookie && onUpdateCart(cookie.value));
+
+chrome.notifications.onClicked.addListener(id => {
+  if (id === Notifs.NewOrder) {
+    chrome.tabs.create({
+      url: "https://www.minato91.fr",
+    })
+    chrome.notifications.clear(id);
+  }
+})
 
 function onUpdateCart(cookie: string) {
   const cart = decodeCart(cookie);
@@ -161,4 +175,16 @@ function onUpdateCart(cookie: string) {
 }
 function onEmptiedCart() {
   store.dispatch(new UpdateCartAction({ total: 0, items: [] }))
+}
+
+function onNewOrder(group: Group) {
+  // notification
+  chrome.notifications.create(Notifs.NewOrder, {
+    type: 'basic',
+    title: 'Commande en cours !',
+    message: 'Une commande est en cours de préparation dans le groupe ' + group.key + ' !\nCliquez sur cette notification pour remplir votre panier.',
+    contextMessage: group.key,
+    iconUrl: 'images/icon-48.png',
+
+  })
 }
