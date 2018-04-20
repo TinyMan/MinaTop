@@ -54,6 +54,12 @@ store.addEffect(async (action: ParticipateAction) => {
 store.addEffect(async (action: SendCartAction) => {
   await api.sendCart({ order: action.order, ...store.value.cart });
 }, SendCartAction);
+store.addEffect(async (action: UpdateCartAction) => {
+  chrome.browserAction.setBadgeBackgroundColor({ color: "" });
+  chrome.browserAction.setBadgeText({ text: action.payload.total + '€' });
+}, UpdateCartAction);
+
+
 
 api.on(Events.GroupChange, (group: Group) => {
   store.dispatch(new GroupChangeAction(group));
