@@ -117,21 +117,18 @@ export function encodeCart(cart: Cart) {
 }
 export function decodeCart(cart: string) {
   const items: CartItem[] = [];
-  const regex = /(.+)65(.+)65(.+)65(.+)(?:3f)?/g;
-  let match = regex.exec(cart);
-  while (match) {
-    const [, id, title, qty, price] = match;
+  cart.split('3f').forEach(item => {
+    const [id, title, qty, price] = item.split('65');
     items.push({
       qty: parseInt(decode(qty), 10),
       title: decode(title),
       id: decode(id),
       price: parseFloat(decode(price)),
     })
-    match = regex.exec(cart);
-  }
+  })
 
   return {
-    total: 0,
+    total: Math.round(items.reduce((a, e) => a + e.price, 0) * 100) / 100,
     items,
   };
 }

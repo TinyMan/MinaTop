@@ -9,7 +9,9 @@ import { Group } from '../lib/group';
 import { Order } from '../lib/Order';
 import { CartRecord } from '../lib/cart';
 import { ME } from '../lib/utils';
+import { decodeCart } from '../lib/cookie';
 
+const cookieName = '13222d2a2631002f2a262d37';
 const api = new Api();
 
 /**
@@ -125,7 +127,22 @@ async function dispatcher(message: MinaTopMessage, sender: chrome.runtime.Messag
     console.error(e);
   }
 }
-chrome.runtime.onMessageExternal.addListener(dispatcher);
 chrome.runtime.onMessage.addListener(dispatcher);
 
 restoreFromLocalStorage();
+
+chrome.cookies.onChanged.addListener(changeInfo => {
+  if (changeInfo.cookie.name === cookieName && changeInfo.cookie.domain === 'www.minato91.fr' && changeInfo.cause === 'explicit') {
+    onUpdateCart(changeInfo.cookie.value);
+  }
+})
+
+chrome.cookies.get({
+  url: "http://www.minato91.fr",
+  name: cookieName,
+}, cookie => cookie && onUpdateCart(cookie.value));
+
+function onUpdateCart(cookie: string) {
+  const cart = decodeCart(cookie);
+  store.dispatch(new UpdateCartAction(cart));
+}
