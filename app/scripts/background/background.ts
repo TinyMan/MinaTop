@@ -56,7 +56,11 @@ store.addEffect(async (action: SendCartAction) => {
 }, SendCartAction);
 store.addEffect(async (action: UpdateCartAction) => {
   chrome.browserAction.setBadgeBackgroundColor({ color: [0, 0, 0, 0] });
-  chrome.browserAction.setBadgeText({ text: action.payload.total + '€' });
+  if (action.payload.total > 0) {
+    chrome.browserAction.setBadgeText({ text: action.payload.total + '€' });
+  } else {
+    chrome.browserAction.setBadgeText({ text: '' });
+  }
 }, UpdateCartAction);
 
 
@@ -138,8 +142,11 @@ chrome.runtime.onMessage.addListener(dispatcher);
 restoreFromLocalStorage();
 
 chrome.cookies.onChanged.addListener(changeInfo => {
-  if (changeInfo.cookie.name === cookieName && changeInfo.cookie.domain === 'www.minato91.fr' && changeInfo.cause === 'explicit') {
-    onUpdateCart(changeInfo.cookie.value);
+  if (changeInfo.cookie.name === cookieName && changeInfo.cookie.domain === 'www.minato91.fr') {
+    if (changeInfo.cause === 'explicit')
+      onUpdateCart(changeInfo.cookie.value);
+    else if (changeInfo.removed)
+      onEmptiedCart();
   }
 })
 
@@ -151,4 +158,7 @@ chrome.cookies.get({
 function onUpdateCart(cookie: string) {
   const cart = decodeCart(cookie);
   store.dispatch(new UpdateCartAction(cart));
+}
+function onEmptiedCart() {
+  store.dispatch(new UpdateCartAction({ total: 0, items: [] }))
 }
