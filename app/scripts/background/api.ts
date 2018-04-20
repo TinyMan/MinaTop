@@ -195,11 +195,17 @@ export class Api extends EventEmitter {
     }
   }
   async cancelOrder(group: string, order: string) {
-    const db = await this.db;
     console.log('Cancel order', group, order);
     const orderRef = await this.ensureOrder(order, group);
     return await orderRef.update({
       cancelled: true
     });
+  }
+
+  async listCarts(order: string) {
+    const orderRef = await this.ensureOrder(order);
+    const carts = await orderRef.collection('carts').get();
+
+    return carts.docs.map(doc => doc.data()).filter(d => !!d) as Cart[];
   }
 }

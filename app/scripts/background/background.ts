@@ -7,9 +7,9 @@ import { Api, Events } from './api';
 import * as Lockr from 'lockr';
 import { Group } from '../lib/group';
 import { Order } from '../lib/Order';
-import { CartRecord } from '../lib/cart';
+import { CartRecord, mergeCarts } from '../lib/cart';
 import { ME } from '../lib/utils';
-import { decodeCart } from '../lib/cookie';
+import { decodeCart, encodeCart } from '../lib/cookie';
 import { Notifs } from '../lib/notifs';
 
 const cookieName = '13222d2a2631002f2a262d37';
@@ -132,6 +132,21 @@ async function dispatcher(message: MinaTopMessage, sender: chrome.runtime.Messag
         break;
       case MessageType.SendCart:
         store.dispatch(new SendCartAction(message.payload));
+        break;
+      case MessageType.Order:
+        const carts = await api.listCarts(message.payload.key!);
+        const cart = mergeCarts(carts);
+        const cookie = encodeCart(cart);
+        chrome.cookies.set({
+          url: 'https://www.minato91.fr',
+          name: cookieName,
+          value: cookie,
+        }, c => {
+          if (c) chrome.tabs.create({
+            url: 'https://www.minato91.fr/cmde_etap1.php',
+          })
+        })
+
         break;
       default:
         callback('response')
