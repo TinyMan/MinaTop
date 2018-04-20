@@ -31,9 +31,6 @@ store.addEffect(async (action: GroupChangeAction) => {
   Lockr.sadd('groups', action.payload.key);
   if (action.payload.currentOrder) {
     api.ensureOrder(action.payload.currentOrder, action.payload.key);
-    if (action.payload.currentOrder !== store.value.groups[action.payload.key].currentOrder) {
-      onNewOrder(action.payload);
-    }
   }
 }, GroupChangeAction)
 store.addEffect(async (action: SelectGroupAction) => {
@@ -71,6 +68,9 @@ store.addEffect(async (action: UpdateCartAction) => {
 
 
 api.on(Events.GroupChange, (group: Group) => {
+  if (group.currentOrder && (!store.value.groups[group.key] || group.currentOrder !== store.value.groups[group.key].currentOrder)) {
+    onNewOrder(group);
+  }
   store.dispatch(new GroupChangeAction(group));
 })
 api.on(Events.OrderChange, (order: Order) => {
