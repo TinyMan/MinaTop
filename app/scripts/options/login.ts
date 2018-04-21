@@ -1,4 +1,6 @@
+// #if process.env.NODE_ENV === 'development'
 import 'chromereload/devonly'
+// #endif
 
 import * as firebase from 'firebase';
 import * as firebaseui from 'firebaseui';

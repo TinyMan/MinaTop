@@ -1,5 +1,7 @@
 // Enable chromereload by uncommenting this line:
+// #if process.env.NODE_ENV === 'development'
 import 'chromereload/devonly'
+// #endif
 
 import { render } from 'lit-html';
 import { MinaTopMessage, MessageType, GetStateMessage } from '../lib/MessageEvent';

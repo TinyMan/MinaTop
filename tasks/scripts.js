@@ -7,6 +7,7 @@ import gulpWebpack from 'webpack-stream'
 import plumber from 'gulp-plumber'
 import livereload from 'gulp-livereload'
 import args from './lib/args'
+import UglifyJSPlugin from 'uglifyjs-webpack-plugin';
 
 const ENV = args.production ? 'production' : 'development'
 
@@ -26,7 +27,19 @@ gulp.task('scripts', (cb) => {
           'process.env.VENDOR': JSON.stringify(args.vendor)
         })
       ].concat(args.production ? [
-        new webpack.optimize.UglifyJsPlugin(),
+        new UglifyJSPlugin({
+          parallel: true,
+          uglifyOptions: {
+            beautify: true,
+            ecma: 6,
+            compress: {
+              unused: false,
+            },
+            comments: false,
+            mangle: true,
+
+          }
+        }),
         new webpack.optimize.ModuleConcatenationPlugin()
       ] : []),
       module: {
@@ -35,7 +48,11 @@ gulp.task('scripts', (cb) => {
             test: /\.ts$/,
             loader: 'ts-loader',
             exclude: /node_modules/
-          }
+          },
+          {
+            test: /\.ts$/,
+            use: ['webpack-conditional-loader']
+          },
         ]
       },
       resolve: {

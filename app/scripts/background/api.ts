@@ -52,6 +52,7 @@ export class Api extends EventEmitter {
   }
 
   public async ensureGroup(group: string) {
+    if (!group) throw new Error('group cannot be null');
     let groupRef = this.groups.get(group);
     if (!groupRef) {
       const db = await this.db;
@@ -65,7 +66,6 @@ export class Api extends EventEmitter {
     let orderRef = this.orders.get(order);
     if (!orderRef) {
       if (!group) throw new Error('Order not found and group not filled');
-      const db = await this.db;
       const groupRef = await this.ensureGroup(group);
       orderRef = groupRef.collection('orders').doc(order);
       this.orders.set(order, orderRef);

@@ -1,5 +1,7 @@
 // Enable chromereload by uncommenting this line:
+// #if process.env.NODE_ENV === 'development'
 import 'chromereload/devonly'
+// #endif
 import { MinaTopMessage, MessageType, NewStateMessage } from '../lib/MessageEvent'
 import { Store } from './store/store';
 import { State, initialState, UpdateCartAction, GroupChangeAction, OrderChangeAction, SelectGroupAction, AddGroupAction, AddOrderAction, CancelOrderAction, AddOrderSuccessAction, CancelOrderSuccessAction, ParticipateAction, RemoteCartUpdateAction, SendCartAction, RemoteCartRemoveAction, SignInSuccessAction, SignOutAction } from './store/actions';
@@ -28,7 +30,7 @@ store.subscribe(state => {
  * Side Effects
  */
 store.addEffect(async (action: GroupChangeAction) => {
-  Lockr.sadd('groups', action.payload.key);
+  if (action.payload.key) Lockr.sadd('groups', action.payload.key);
   if (action.payload.currentOrder) {
     api.ensureOrder(action.payload.currentOrder, action.payload.key);
   }
