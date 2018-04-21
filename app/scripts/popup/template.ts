@@ -130,7 +130,10 @@ export const group = (state: State, key: string) => {
 `
 }
 
-export const nogroup = () => html``;
+export const nogroup = () => html`<div>
+  <span class="nogroup">
+    <i class="material-icons arrow">subdirectory_arrow_left</i>Vous n'etes dans aucun groupe ! Ajoutez un groupe pour commencer.</span>
+</div>`;
 
 export const groups = (state: State) => {
   if (Object.keys(state.groups).length === 0) return nogroup();
