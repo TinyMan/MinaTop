@@ -51,8 +51,7 @@
   "permissions": [
     "notifications",
     "tabs",
-    "webRequest",
-    "<all_urls>",
-    "cookies"
+    "cookies",
+    "*://www.minato91.fr/*"
   ]
 }
