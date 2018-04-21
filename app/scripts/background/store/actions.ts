@@ -51,7 +51,7 @@ export class UpdateCartAction extends Action<State> {
 
 export class SelectGroupAction extends Action<State> {
   public readonly type = 'SelectGroup';
-  constructor(public readonly payload: string) { super() }
+  constructor(public readonly payload: string | null) { super() }
 
   public reduce(state: State): State {
     return {
@@ -92,6 +92,17 @@ export class OrderChangeAction extends Action<State> {
 export class AddGroupAction extends Action<State> {
   public readonly type = "AddGroup";
   constructor(public readonly payload: string) { super() }
+
+}
+export class LeaveGroupAction extends Action<State> {
+  public readonly type = "LeaveGroup";
+  constructor(public readonly payload: string) { super() }
+
+  public reduce(state: State): State {
+    const newState = { ...state };
+    delete newState.groups[this.payload];
+    return newState;
+  }
 
 }
 export class AddOrderAction extends Action<State> {

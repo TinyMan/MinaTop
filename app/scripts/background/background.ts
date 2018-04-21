@@ -4,7 +4,7 @@ import 'chromereload/devonly'
 // #endif
 import { MinaTopMessage, MessageType, NewStateMessage } from '../lib/MessageEvent'
 import { Store } from './store/store';
-import { State, initialState, UpdateCartAction, GroupChangeAction, OrderChangeAction, SelectGroupAction, AddGroupAction, AddOrderAction, CancelOrderAction, AddOrderSuccessAction, CancelOrderSuccessAction, ParticipateAction, RemoteCartUpdateAction, SendCartAction, RemoteCartRemoveAction, SignInSuccessAction, SignOutAction } from './store/actions';
+import { State, initialState, UpdateCartAction, GroupChangeAction, OrderChangeAction, SelectGroupAction, AddGroupAction, AddOrderAction, CancelOrderAction, AddOrderSuccessAction, CancelOrderSuccessAction, ParticipateAction, RemoteCartUpdateAction, SendCartAction, RemoteCartRemoveAction, SignInSuccessAction, SignOutAction, LeaveGroupAction } from './store/actions';
 import { Api, Events } from './api';
 import * as Lockr from 'lockr';
 import { Group } from '../lib/group';
@@ -36,12 +36,19 @@ store.addEffect(async (action: GroupChangeAction) => {
   }
 }, GroupChangeAction)
 store.addEffect(async (action: SelectGroupAction) => {
-  Lockr.set('selectedGroup', action.payload);
+  if (action.payload)
+    Lockr.set('selectedGroup', action.payload);
+  else Lockr.rm('selectedGroup');
 }, SelectGroupAction);
 store.addEffect(async (action: AddGroupAction) => {
   api.ensureGroup(action.payload);
   return new SelectGroupAction(action.payload);
 }, AddGroupAction);
+store.addEffect(async (action: LeaveGroupAction) => {
+  api.leaveGroup(action.payload);
+  Lockr.srem('groups', action.payload);
+  return new SelectGroupAction(null);
+}, LeaveGroupAction);
 store.addEffect(async (action: AddOrderAction) => {
   const order = await api.createOrder(action.group);
   return new AddOrderSuccessAction(order);
@@ -143,6 +150,9 @@ async function dispatcher(message: MinaTopMessage, sender: chrome.runtime.Messag
         break;
       case MessageType.SendCart:
         store.dispatch(new SendCartAction(message.payload));
+        break;
+      case MessageType.LeaveGroup:
+        store.dispatch(new LeaveGroupAction(message.payload));
         break;
       case MessageType.Order:
         const carts = await api.listCarts(message.payload.key!);

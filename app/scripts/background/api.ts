@@ -51,6 +51,15 @@ export class Api extends EventEmitter {
     });
   }
 
+  public leaveGroup(group: string) {
+    if (this.groups.has(group)) {
+      this.groups.delete(group);
+    }
+    if (this.groupUnsubscribers.has(group)) {
+      this.groupUnsubscribers.get(group)!();
+      this.groupUnsubscribers.delete(group);
+    }
+  }
   public async ensureGroup(group: string) {
     if (!group) throw new Error('group cannot be null');
     let groupRef = this.groups.get(group);

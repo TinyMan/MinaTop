@@ -3,7 +3,7 @@ import { State } from '../background/store/actions';
 import { CartItem, Cart } from '../lib/cart';
 import { Order } from '../lib/Order';
 import { CreateOrderMessage, SelectGroupMessage, CancelOrderMessage, ToggleParticipateMessage, SendCartMessage, OrderMessage } from '../lib/MessageEvent';
-import { sendMessage, addGroup, getTimeRemaining, leadingZero, getClassTimeRemaining, pluralize, openOptions } from './helper';
+import { sendMessage, addGroup, getTimeRemaining, leadingZero, getClassTimeRemaining, pluralize, openOptions, leaveGroup } from './helper';
 import { Group } from '../lib/group';
 import { ME } from '../lib/utils';
 
@@ -111,6 +111,8 @@ export const no_order = (group) => html`
   <button on-click="${() => { sendMessage(new CreateOrderMessage(group)) }}">Proposer ma commande</button>
 </div>
 `
+
+export const leaveIcon = (group: Group) => html`<img on-click="${e => (e.preventDefault(), leaveGroup(group))}" alt="Exit Sign icon" class="leave" src="https://png.icons8.com/material/25/ffffff/exit-sign.png">`;
 export const group = (state: State, key: string) => {
   const group = state.groups[key];
   const o = state.orders[group.currentOrder!];
@@ -122,17 +124,22 @@ export const group = (state: State, key: string) => {
   }
   return html`
 <details class="group" on-toggle="${onToggle}" open="${state.selectedGroup === key}">
-  <summary>${group.key}</summary>
+  <summary>${group.key} ${leaveIcon(group)} </summary>
   ${group.currentOrder ? (o ? order(state, o) : loader) : no_order(group.key)}
 </details>
 `
 }
 
-export const groups = (state: State) => html`
+export const nogroup = () => html``;
+
+export const groups = (state: State) => {
+  if (Object.keys(state.groups).length === 0) return nogroup();
+  return html`
 <div class="groups">
   ${Object.keys(state.groups).map(k => group(state, k))}
 </div>
 `;
+}
 
 export const separator = html`<div class="separator"></div>`;
 

@@ -1,4 +1,5 @@
-import { MinaTopMessage, AddGroupMessage } from "../lib/MessageEvent";
+import { MinaTopMessage, AddGroupMessage, LeaveGroupMessage } from "../lib/MessageEvent";
+import { Group } from "../lib/group";
 
 export function sendMessage(message: MinaTopMessage, callback?: (response: any) => void) {
   return chrome.runtime.sendMessage(message, callback);
@@ -49,4 +50,9 @@ export function pluralize(text: string) {
 
 export function openOptions() {
   chrome.runtime.openOptionsPage();
+}
+
+export function leaveGroup(group: Group) {
+  sendMessage(new LeaveGroupMessage(group.key));
+  return false;
 }

@@ -11,6 +11,7 @@ export enum MessageType {
   CancelOrder = 'Cancel Order',
   SelectGroup = 'Select Group',
   AddGroup = 'Add Group',
+  LeaveGroup = 'Leave Group',
   ToggleParticipate = 'Toggle Participate',
   SendCart = 'Send Cart',
   Order = 'Order',
@@ -50,6 +51,10 @@ export class AddGroupMessage implements IMessage {
   public readonly type = MessageType.AddGroup;
   constructor(public readonly payload: string) { }
 }
+export class LeaveGroupMessage implements IMessage {
+  public readonly type = MessageType.LeaveGroup;
+  constructor(public readonly payload: string) { }
+}
 export class ToggleParticipateMessage implements IMessage {
   public readonly type = MessageType.ToggleParticipate;
   constructor(public readonly payload: string) { }
@@ -71,6 +76,7 @@ export type MinaTopMessage = UpdateCartMessage
   | CancelOrderMessage
   | SelectGroupMessage
   | AddGroupMessage
+  | LeaveGroupMessage
   | ToggleParticipateMessage
   | SendCartMessage
   | OrderMessage;
