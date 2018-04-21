@@ -2,7 +2,7 @@
 import 'chromereload/devonly'
 import { MinaTopMessage, MessageType, NewStateMessage } from '../lib/MessageEvent'
 import { Store } from './store/store';
-import { State, initialState, UpdateCartAction, GroupChangeAction, OrderChangeAction, SelectGroupAction, AddGroupAction, AddOrderAction, CancelOrderAction, AddOrderSuccessAction, CancelOrderSuccessAction, ParticipateAction, RemoteCartUpdateAction, SendCartAction, RemoteCartRemoveAction } from './store/actions';
+import { State, initialState, UpdateCartAction, GroupChangeAction, OrderChangeAction, SelectGroupAction, AddGroupAction, AddOrderAction, CancelOrderAction, AddOrderSuccessAction, CancelOrderSuccessAction, ParticipateAction, RemoteCartUpdateAction, SendCartAction, RemoteCartRemoveAction, SignInSuccessAction, SignOutAction } from './store/actions';
 import { Api, Events } from './api';
 import * as Lockr from 'lockr';
 import { Group } from '../lib/group';
@@ -82,6 +82,15 @@ api.on(Events.CartChange, (cart: CartRecord) => {
 api.on(Events.CartRemove, (order: string) => {
   store.dispatch(new RemoteCartRemoveAction(order));
 })
+api.on(Events.SignIn, user => {
+  console.log('Signed in with user', user)
+  restoreFromLocalStorage();
+  store.dispatch(new SignInSuccessAction());
+});
+api.on(Events.SignOut, user => {
+  console.log('Signed out', user)
+  store.dispatch(new SignOutAction());
+});
 
 /**
  * Restore state from local storage
@@ -158,8 +167,6 @@ async function dispatcher(message: MinaTopMessage, sender: chrome.runtime.Messag
   }
 }
 chrome.runtime.onMessage.addListener(dispatcher);
-
-restoreFromLocalStorage();
 
 chrome.cookies.onChanged.addListener(changeInfo => {
   if (changeInfo.cookie.name === cookieName && changeInfo.cookie.domain === 'www.minato91.fr') {

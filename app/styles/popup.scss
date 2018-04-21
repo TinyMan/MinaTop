@@ -20,6 +20,9 @@ button {
 button.start {
   width: 100%;
 }
+h3.signin {
+  text-align: center;
+}
 
 .separator {
   width: 100%;
@@ -106,9 +109,6 @@ input#group {
     flex-direction: column;
     width: 50%;
     align-items: center;
-    button {
-
-    }
   }
   .commande {
     margin: 10px auto;

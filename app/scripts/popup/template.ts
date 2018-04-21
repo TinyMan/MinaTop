@@ -3,7 +3,7 @@ import { State } from '../background/store/actions';
 import { CartItem, Cart } from '../lib/cart';
 import { Order } from '../lib/Order';
 import { CreateOrderMessage, SelectGroupMessage, CancelOrderMessage, ToggleParticipateMessage, SendCartMessage, OrderMessage } from '../lib/MessageEvent';
-import { sendMessage, addGroup, getTimeRemaining, leadingZero, getClassTimeRemaining, pluralize } from './helper';
+import { sendMessage, addGroup, getTimeRemaining, leadingZero, getClassTimeRemaining, pluralize, openOptions } from './helper';
 import { Group } from '../lib/group';
 import { ME } from '../lib/utils';
 
@@ -181,6 +181,11 @@ export const table = (state: State) => html`
   </tfoot>
 </table>`;
 
+export const signIn = (state: State) => html`
+<h3 class="signin">
+  <a on-click="${() => openOptions()}" href="#">Connectez-vous</a> pour accedez aux groupes de commande</h3>
+`
+
 export const popup = (state: State) => html`
-${joinGroup()} ${groups(state)} ${separator} ${table(state)}
+${state.signedin ? joinGroup() : signIn(state)} ${groups(state)} ${separator} ${table(state)}
 `

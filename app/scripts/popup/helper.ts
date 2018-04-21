@@ -46,3 +46,7 @@ export function leadingZero(n: number, size = 2): string {
 export function pluralize(text: string) {
   return text.replace(/(\w+) ?/g, '$1s ').trim();
 }
+
+export function openOptions() {
+  chrome.runtime.openOptionsPage();
+}

@@ -15,6 +15,7 @@ export interface State {
   readonly remoteCarts: {
     [key: string]: Readonly<CartRecord & { outdated: boolean }>
   };
+  readonly signedin: boolean;
 }
 export const initialState: State = {
   cart: {
@@ -25,6 +26,7 @@ export const initialState: State = {
   orders: {},
   selectedGroup: null,
   remoteCarts: {},
+  signedin: false,
 }
 
 export class UpdateCartAction extends Action<State> {
@@ -181,4 +183,27 @@ export class SendCartAction extends Action<State> {
   public readonly type = "SendCart";
   constructor(public readonly order: string) { super() }
 
+}
+
+export class SignInSuccessAction extends Action<State> {
+  public readonly type = 'SignInSuccessAction';
+  public reduce(state: State): State {
+    return {
+      ...state,
+      signedin: true,
+    }
+  }
+}
+export class SignOutAction extends Action<State> {
+  public readonly type = 'SignOutAction';
+  public reduce(state: State): State {
+    return {
+      ...state,
+      signedin: false,
+      groups: {},
+      orders: {},
+      selectedGroup: null,
+      remoteCarts: {}
+    }
+  }
 }
