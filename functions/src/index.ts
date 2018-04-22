@@ -33,10 +33,13 @@ export const onWriteCart = functions.firestore.document('groups/{group}/orders/{
 
   const cartSent = oldTotal === 0 && newTotal > 0 ? 1 : (oldTotal > 0 && newTotal === 0 ? -1 : 0);
 
-  const order = await change.before.ref.parent.parent.get();
-  return order.ref.update({
-    total: (order.data().total || 0) + diff,
-    totalCarts: (order.data().totalCarts || 0) + (deleted ? -1 : (isNew ? 1 : 0)),
-    sentCarts: (order.data().sentCarts || 0) + cartSent,
-  });
+  return change.before.ref.firestore.runTransaction(async () => {
+    const order = await change.before.ref.parent.parent.get();
+    return order.ref.update({
+      total: (order.data().total || 0) + diff,
+      totalCarts: (order.data().totalCarts || 0) + (deleted ? -1 : (isNew ? 1 : 0)),
+      sentCarts: (order.data().sentCarts || 0) + cartSent,
+    });
+  }
+  )
 })
