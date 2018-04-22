@@ -6,4 +6,7 @@ export interface Order {
   expiration: number;
   fulfilled: boolean;
   cancelled: boolean;
+  total: number;
+  totalCarts: number;
+  sentCarts: number;
 }

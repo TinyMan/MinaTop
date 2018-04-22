@@ -99,6 +99,11 @@ export const order = (state: State, order: Order) => {
   </div>
   <div class="participants">
     <span>Participants:</span>
+    <span class="participants-value">${order.sentCarts} / ${order.totalCarts}</span>
+  </div>
+  <div class="total">
+    <span>Total:</span>
+    <span class="total-value">${order.total} €</span>
   </div>
   ${btnParticipate(order, p)} ${p ? btnSendCart(order, state) : ''} ${btnCancel(order)} ${btnOrder(order)}
 </div>

@@ -162,6 +162,9 @@ export class Api extends EventEmitter {
       group,
       authorName: firebase.auth().currentUser!.displayName || '',
       author: firebase.auth().currentUser!.uid,
+      total: 0,
+      totalCarts: 0,
+      sentCarts: 0,
     };
     const ref = await db.collection('groups').doc(group).collection('orders').add(o);
 
