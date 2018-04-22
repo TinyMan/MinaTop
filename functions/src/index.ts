@@ -21,25 +21,18 @@ export const onUpdateOrder = functions.firestore.document('groups/{group}/orders
 })
 
 export const onWriteCart = functions.firestore.document('groups/{group}/orders/{order}/carts/{cart}').onWrite(async (change, context) => {
-  const deleted = !change.after.exists;
-  const isNew = !change.before.exists;
-  const oldDoc = isNew ? null : change.before.data();
-  const newDoc = deleted ? null : change.after.data();
-
-  const newTotal = deleted ? 0 : newDoc.total;
-  const oldTotal = isNew ? 0 : oldDoc.total;
-
-  const diff = newTotal - oldTotal;
-
-  const cartSent = oldTotal === 0 && newTotal > 0 ? 1 : (oldTotal > 0 && newTotal === 0 ? -1 : 0);
-
   return change.before.ref.firestore.runTransaction(async () => {
+    const carts = await change.before.ref.parent.get();
     const order = await change.before.ref.parent.parent.get();
+
+    const cartsData = carts.docs.filter(doc => doc.exists).map(doc => doc.data());
+    const total = cartsData.reduce((a, e) => a + e.total, 0);
+    const totalCarts = cartsData.length;
+    const sentCarts = cartsData.filter(c => c.total > 0).length;
     return order.ref.update({
-      total: (order.data().total || 0) + diff,
-      totalCarts: (order.data().totalCarts || 0) + (deleted ? -1 : (isNew ? 1 : 0)),
-      sentCarts: (order.data().sentCarts || 0) + cartSent,
+      total,
+      totalCarts,
+      sentCarts,
     });
-  }
-  )
+  })
 })
