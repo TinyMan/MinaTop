@@ -128,7 +128,7 @@ export function decodeCart(cart: string) {
   })
 
   return {
-    total: Math.round(items.reduce((a, e) => a + e.price, 0) * 100) / 100,
+    total: Math.round(items.reduce((a, e) => a + e.price * e.qty, 0) * 100) / 100,
     items,
   };
 }
