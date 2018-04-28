@@ -103,7 +103,7 @@ export const order = (state: State, order: Order) => {
   </div>
   <div class="total">
     <span>Total:</span>
-    <span class="total-value">${order.total} €</span>
+    <span class="total-value">${order.total.toFixed(2)}&nbsp;€</span>
   </div>
   ${btnParticipate(order, p)} ${p ? btnSendCart(order, state) : ''} ${btnCancel(order)} ${btnOrder(order)}
 </div>
