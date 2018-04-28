@@ -93,7 +93,10 @@ export function encode(str: string) {
   return str.split('').map(a => substitute[a]).join('')
 }
 export function decode(str: string) {
-  return str.match(/.{2}/g)!.map(char => Object.entries(substitute).find(([k, c]) => c === char)![0]).join('');
+  return str.match(/.{2}/g)!.map(char => {
+    const a = Object.entries(substitute).find(([k, c]) => c === char);
+    return a ? a[0] : '.'
+  }).join('');
 }
 
 export function encodeItem(item: CartItem) {
