@@ -16,6 +16,7 @@ export const Events = {
   OrderChange: Symbol(),
   CartChange: Symbol(),
   CartRemove: Symbol(),
+  OrderRemove: Symbol(),
 
 }
 export class Api extends EventEmitter {
@@ -79,7 +80,7 @@ export class Api extends EventEmitter {
       orderRef = groupRef.collection('orders').doc(order);
       this.orders.set(order, orderRef);
       this.cartUnsubscribers.set(order, orderRef.collection('carts').doc(firebase.auth().currentUser!.uid).onSnapshot({ includeMetadataChanges: false }, { next: this.onCartSnapshot.bind(this) }));
-      this.orderUnsubscribers.set(order, orderRef.onSnapshot(this.onOrderSnapshot.bind(this), () => {
+      this.orderUnsubscribers.set(order, orderRef.onSnapshot(this.onOrderSnapshot.bind(this), e => {
         // on error
         const uns = this.orderUnsubscribers.get(order);
         const cart = this.cartUnsubscribers.get(order);
@@ -89,6 +90,7 @@ export class Api extends EventEmitter {
         this.orderUnsubscribers.delete(order);
         this.cartUnsubscribers.delete(order);
         this.orders.delete(order);
+        this.emit(Events.OrderRemove, order);
       }));
     }
     return orderRef;

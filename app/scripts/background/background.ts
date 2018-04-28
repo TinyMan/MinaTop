@@ -4,7 +4,7 @@ import 'chromereload/devonly'
 // #endif
 import { MinaTopMessage, MessageType, NewStateMessage } from '../lib/MessageEvent'
 import { Store } from './store/store';
-import { State, initialState, UpdateCartAction, GroupChangeAction, OrderChangeAction, SelectGroupAction, AddGroupAction, AddOrderAction, CancelOrderAction, AddOrderSuccessAction, CancelOrderSuccessAction, ParticipateAction, RemoteCartUpdateAction, SendCartAction, RemoteCartRemoveAction, SignInSuccessAction, SignOutAction, LeaveGroupAction } from './store/actions';
+import { State, initialState, UpdateCartAction, GroupChangeAction, OrderChangeAction, SelectGroupAction, AddGroupAction, AddOrderAction, CancelOrderAction, AddOrderSuccessAction, CancelOrderSuccessAction, ParticipateAction, RemoteCartUpdateAction, SendCartAction, RemoteCartRemoveAction, SignInSuccessAction, SignOutAction, LeaveGroupAction, OrderRemovedAction, EmptyCartAction } from './store/actions';
 import { Api, Events } from './api';
 import * as Lockr from 'lockr';
 import { Group } from '../lib/group';
@@ -73,6 +73,17 @@ store.addEffect(async (action: UpdateCartAction) => {
     chrome.browserAction.setBadgeText({ text: '' });
   }
 }, UpdateCartAction);
+store.addEffect(async (action: OrderRemovedAction) => {
+  if (action.order in store.value.remoteCarts)
+    return new EmptyCartAction();
+  return;
+}, OrderRemovedAction);
+store.addEffect(async (action: EmptyCartAction) => {
+  chrome.cookies.remove({
+    url: 'https://www.minato91.fr',
+    name: cookieName,
+  });
+}, EmptyCartAction);
 
 
 
@@ -100,6 +111,9 @@ api.on(Events.SignOut, user => {
   console.log('Signed out', user)
   store.dispatch(new SignOutAction());
 });
+api.on(Events.OrderRemove, order => {
+  store.dispatch(new OrderRemovedAction(order));
+})
 
 /**
  * Restore state from local storage
@@ -186,10 +200,11 @@ chrome.runtime.onMessage.addListener(dispatcher);
 
 chrome.cookies.onChanged.addListener(changeInfo => {
   if (changeInfo.cookie.name === cookieName && changeInfo.cookie.domain === 'www.minato91.fr') {
-    if (changeInfo.cause === 'explicit')
-      onUpdateCart(changeInfo.cookie.value);
+    if (changeInfo.cause === 'overwrite') return;
     else if (changeInfo.removed)
       onEmptiedCart();
+    else if (changeInfo.cause === 'explicit')
+      onUpdateCart(changeInfo.cookie.value);
   }
 })
 

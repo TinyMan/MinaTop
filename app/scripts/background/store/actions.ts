@@ -218,3 +218,10 @@ export class SignOutAction extends Action<State> {
     }
   }
 }
+export class OrderRemovedAction extends Action<State> {
+  public readonly type = 'OrderRemovedAction';
+  constructor(public readonly order: string) { super() }
+}
+export class EmptyCartAction extends Action<State> {
+  public readonly type = 'EmptyCartAction';
+}
