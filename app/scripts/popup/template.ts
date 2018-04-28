@@ -2,7 +2,7 @@ import { html, render } from 'lit-html/lib/lit-extended';
 import { State } from '../background/store/actions';
 import { CartItem, Cart } from '../lib/cart';
 import { Order } from '../lib/Order';
-import { CreateOrderMessage, SelectGroupMessage, CancelOrderMessage, ToggleParticipateMessage, SendCartMessage, OrderMessage } from '../lib/MessageEvent';
+import { CreateOrderMessage, SelectGroupMessage, CancelOrderMessage, ToggleParticipateMessage, SendCartMessage, OrderMessage, OrderFulfilledMessage } from '../lib/MessageEvent';
 import { sendMessage, addGroup, getTimeRemaining, leadingZero, getClassTimeRemaining, pluralize, openOptions, leaveGroup } from './helper';
 import { Group } from '../lib/group';
 import { ME } from '../lib/utils';
@@ -46,6 +46,12 @@ export const btnParticipate = (order: Order, participate: boolean) => {
     return html``;
   }
   return html`<button on-click="${() => sendMessage(new ToggleParticipateMessage(order.key!))}">${participate ? 'Ne plus participer' : 'Participer'}</button>`
+}
+export const btnFulfilled = (order: Order) => {
+  if (order.author === ME) {
+    return html`<button on-click="${() => sendMessage(new OrderFulfilledMessage(order))}">Commande terminée</button>`;
+  }
+  return html``;
 }
 export const order_author = (order: Order) => {
   let a;
@@ -105,7 +111,7 @@ export const order = (state: State, order: Order) => {
     <span>Total:</span>
     <span class="total-value">${order.total.toFixed(2)}&nbsp;€</span>
   </div>
-  ${btnParticipate(order, p)} ${p ? btnSendCart(order, state) : ''} ${btnCancel(order)} ${btnOrder(order)}
+  ${btnParticipate(order, p)} ${p ? btnSendCart(order, state) : ''} ${btnCancel(order)} ${btnOrder(order)} ${btnFulfilled(order)}
 </div>
 `
 }

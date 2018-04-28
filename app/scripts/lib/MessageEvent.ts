@@ -15,6 +15,7 @@ export enum MessageType {
   ToggleParticipate = 'Toggle Participate',
   SendCart = 'Send Cart',
   Order = 'Order',
+  OrderFulfilled = 'OrderFulfilled',
 }
 export interface IMessage {
   readonly type: MessageType;
@@ -67,6 +68,10 @@ export class OrderMessage implements IMessage {
   public readonly type = MessageType.Order;
   constructor(public readonly payload: Order) { }
 }
+export class OrderFulfilledMessage implements IMessage {
+  public readonly type = MessageType.OrderFulfilled;
+  constructor(public readonly payload: Order) { }
+}
 
 export type MinaTopMessage = UpdateCartMessage
   | EchoMessage
@@ -79,4 +84,5 @@ export type MinaTopMessage = UpdateCartMessage
   | LeaveGroupMessage
   | ToggleParticipateMessage
   | SendCartMessage
-  | OrderMessage;
+  | OrderMessage
+  | OrderFulfilledMessage;

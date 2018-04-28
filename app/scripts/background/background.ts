@@ -169,6 +169,10 @@ async function dispatcher(message: MinaTopMessage, sender: chrome.runtime.Messag
         })
 
         break;
+      case MessageType.OrderFulfilled:
+        if (message.payload.key)
+          await api.fulfillOrder(message.payload.group, message.payload.key);
+        break;
       default:
         callback('response')
         break;
