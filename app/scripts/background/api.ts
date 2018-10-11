@@ -1,6 +1,7 @@
 
-import * as firebase from "firebase";
+import firebase from "firebase/app";
 import 'firebase/firestore';
+import 'firebase/auth';
 import { firebase as fbConf } from './config'
 import { Order } from "../lib/Order";
 import { Cart, CartRecord } from "../lib/cart";
@@ -44,6 +45,8 @@ export class Api extends EventEmitter {
     firebase.auth().onAuthStateChanged(user => {
       if (user && !this._db) {
         this._db = firebase.firestore();
+        const settings = { timestampsInSnapshots: true };
+        this._db.settings(settings);
         setTimeout(() => this.emit(Events.SignIn, user), 0);
       } else if (!user) {
         this._db = null;

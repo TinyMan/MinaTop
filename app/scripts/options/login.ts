@@ -2,7 +2,8 @@
 import 'chromereload/devonly'
 // #endif
 
-import * as firebase from 'firebase';
+import firebase from 'firebase/app';
+import 'firebase/auth';
 import * as firebaseui from 'firebaseui';
 import { firebase as fbConf } from '../background/config'
 

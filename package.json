@@ -75,8 +75,8 @@
     "yargs": "^8.x.x"
   },
   "dependencies": {
-    "firebase": "^4.12.1",
-    "firebaseui": "^2.7.0",
+    "firebase": "^5.5.1",
+    "firebaseui": "^3.4.1",
     "lit-html": "^0.9.0",
     "lockr": "^0.8.4",
     "lodash-es": "^4.17.8"
