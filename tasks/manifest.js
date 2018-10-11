@@ -5,6 +5,7 @@ import livereload from 'gulp-livereload'
 import jsonTransform from 'gulp-json-transform'
 import plumber from 'gulp-plumber'
 import applyBrowserPrefixesFor from './lib/applyBrowserPrefixesFor'
+import applyEnvPrefixesFor from './lib/applyEnvPrefixesFor'
 import args from './lib/args'
 
 gulp.task('manifest', () => {
@@ -18,7 +19,10 @@ gulp.task('manifest', () => {
     }))
     .pipe(
       jsonTransform(
-        applyBrowserPrefixesFor(args.vendor),
+        (data, opts) => [
+          applyBrowserPrefixesFor(args.vendor),
+          applyEnvPrefixesFor(args.production ? 'prod' : 'dev')
+        ].reduce((acc, e) => e(acc), data),
         2 /* whitespace */
       )
     )
