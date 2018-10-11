@@ -138,7 +138,11 @@ export class Api extends EventEmitter {
     const order = await this.ensureOrder(cart.order);
     return await order
       .collection('carts').doc(firebase.auth().currentUser!.uid)
-      .set(cart);
+      .set({
+        ...cart,
+        userName: firebase.auth().currentUser!.displayName || 'Anonyme',
+        userEmail: firebase.auth().currentUser!.email,
+      });
   }
 
   async removeCart(order: string) {
@@ -165,13 +169,16 @@ export class Api extends EventEmitter {
       fulfilled,
       cancelled,
       group,
-      authorName: firebase.auth().currentUser!.displayName || '',
+      authorName: firebase.auth().currentUser!.displayName || 'Anonyme',
       author: firebase.auth().currentUser!.uid,
       total: 0,
       totalCarts: 0,
       sentCarts: 0,
     };
-    const ref = await db.collection('groups').doc(group).collection('orders').add(o);
+    const ref = await db.collection('groups').doc(group).collection('orders').add({
+      ...o,
+      authorEmail: firebase.auth().currentUser!.email,
+    });
 
     return {
       ...o,
