@@ -11,7 +11,9 @@
     "128": "images/icon-128.png"
   },
   "background": {
-    "scripts": ["scripts/background.js"]
+    "scripts": [
+      "scripts/background.js"
+    ]
   },
   "browser_action": {
     "default_icon": {
@@ -22,20 +24,35 @@
     "default_popup": "pages/popup.html"
   },
   "options_page": "pages/login.html",
-  "web_accessible_resources": ["scripts/injected.js"],
+  "web_accessible_resources": [
+    "scripts/injected.js"
+  ],
   "externally_connectable": {
-    "matches": ["*://www.minato91.fr/*"]
+    "matches": [
+      "*://www.minato91.fr/*"
+    ]
   },
   "content_scripts": [
     {
-      "matches": ["*://www.minato91.fr/*"],
-      "css": ["styles/contentscript.css"],
-      "js": ["scripts/contentscript.js"],
+      "matches": [
+        "*://www.minato91.fr/*"
+      ],
+      "css": [
+        "styles/contentscript.css"
+      ],
+      "js": [
+        "scripts/contentscript.js"
+      ],
       "run_at": "document_end",
       "all_frames": false
     }
   ],
-  "content_security_policy":
-    "script-src 'self' https://apis.google.com; object-src 'self'",
-  "permissions": ["notifications", "tabs", "cookies", "*://www.minato91.fr/*"]
+  "content_security_policy": "script-src 'self' https://apis.google.com; object-src 'self'",
+  "permissions": [
+    "notifications",
+    "tabs",
+    "cookies",
+    "*://www.minato91.fr/*"
+  ],
+  "__dev__key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnyuf4KD+E/pGGTK1ATcT89NroaotalSEyEjR935zDzQBVeqc/b+3GLRsfR3/SwKiiNbjJ9+Dzzk/tJ5iH+ehQa98hkZaO12F2nRNWzbuBf/d9dMdflEcVkVq+q3nPU/W6ODJmNJiXAlUFdhljMOz0cKYYlMspHn6Tg20JxPS116PDoreV2Z4dqNVBSaTqDBJ7Dm40qteIZiz/4SnoG4Lcw8JDMeCvJpZAVW2yc2qtDcB1f8tHJNY/keZp1y4pYkGO10j8bdxbISsNicqJO+rfOQTgBJ0RLCajywy+TuFsbTXBrMPLDn2xdQfwmtOulYV4wC7h0KKiZm0fzCj65m0pQIDAQAB"
 }
