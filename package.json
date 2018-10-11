@@ -1,7 +1,7 @@
 {
   "name": "minatop",
   "private": true,
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "Effectuer une commande groupée sur le site de www.minato91.fr",
   "scripts": {
     "start": "npm run dev:chrome",
